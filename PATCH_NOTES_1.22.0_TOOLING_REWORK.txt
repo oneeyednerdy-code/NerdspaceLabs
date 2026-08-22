@@ -1,0 +1,49 @@
+NERDSPACE LABS 1.22.0 — TOOLING REWORK
+
+CREATOR SEARCH
+- Rebuilt search results as a dedicated layout.
+- Profile image, identity text, description, tags and actions now occupy separate rows.
+- Long descriptions/usernames wrap without overlapping the image.
+
+GAME RADAR
+- Experimental Signals now shows a compact ranked top 6 by default.
+- "Show all" expands the signal pool only when requested.
+- Prevents a long recommendation list from pushing the rest of Game Radar far down the page.
+
+CREATOR MATCH
+- Genre dropdown now always includes the complete Nerdspace canonical genre list.
+- MMO no longer disappears simply because no currently-live creator was enriched as MMO.
+
+SCHEDULE MATCH
+- Fixed a broken scheduleEvidence implementation that referenced a nonexistent solsticeEvidence function.
+- Schedule Match now uses the actual Solstice scheduleCompatibility engine.
+- Opening Schedule Match starts an on-demand scan of 50 followed creators.
+- For each creator, Nerdspace requests their published Twitch schedule first.
+- If no published schedule exists, Nerdspace requests recent Twitch VODs and uses timing evidence from the last 30 days.
+- Results label their evidence source as Published Twitch schedule or 30-day VOD timing.
+- "Scan next 50" avoids firing hundreds/thousands of Twitch API requests at once.
+- TwitchTracker channel summary remains supplemental. The current project does not invent a timestamped TwitchTracker history endpoint that is not present in the supported gateway.
+
+NETWORK EXPLORER
+- Added a plain-language explanation of what the percentage means.
+- Replaced the long unexplained aggregate-first presentation with a ranked creator list.
+- Highest current fit appears first by default.
+- Added sorting by fit, viewers or name.
+- Existing relationship/live/genre/search filters narrow the ranked list.
+- Game/genre/tag aggregates moved into a collapsible breakdown.
+
+INSIGHTS -> NETWORK CLEANUP
+- Reworked Insights into an actionable review of channels the user follows.
+- User chooses a cutoff date and scans followed channels in batches of 50.
+- Nerdspace checks the creator's latest Twitch VOD and classifies it relative to the chosen date.
+- Filters: inactive, active, unknown, all, plus creator search.
+- Each result links to Twitch for manual review.
+- Nerdspace does NOT automatically unfollow channels: Twitch's current public API provides read access to followed channels but no unfollow endpoint for this app.
+
+DATA INSPECTOR
+- Grouped datasets into Core Twitch, Network Twitch and Supplemental.
+- Added descriptions explaining what each dataset powers.
+- Added ready/unavailable summary counts.
+- Keeps provider failures understandable instead of presenting one unexplained long list.
+
+No D1/KV/R2 required.

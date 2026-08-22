@@ -1,0 +1,39 @@
+NERDSPACE LABS 1.22.0
+
+npm install
+npm test
+npm run build
+npm run preview
+
+VERIFY
+1. Creator Search: search long-description creators and confirm no image/text overlap.
+2. Game Radar: top 6 signals only; Show all expands/collapses.
+3. Creator Match: Genre dropdown includes MMO before and after data loads.
+4. Schedule Match:
+   - open page
+   - first 50 scan begins
+   - published schedules show as Published Twitch schedule
+   - channels without schedules use 30-day Twitch VOD timing
+   - Scan next 50 works
+   - overlap results update
+5. Network Explorer:
+   - explanation visible
+   - ranked creator list appears
+   - fit/viewers/name sorting works
+   - filters reduce list
+   - category breakdown is collapsed by default
+6. Network Cleanup:
+   - choose cutoff date
+   - scan 50
+   - filter inactive/active/unknown
+   - Review on Twitch opens creator page
+7. Data Inspector:
+   - grouped provider sections
+   - descriptions and summary counts
+8. Test 390, 768, 1440 and 1920 widths.
+
+IMPORTANT
+Twitch does not expose an unfollow API endpoint for this use case. Cleanup is intentionally a review + manual Twitch action workflow.
+
+Deploy:
+npm run deploy
