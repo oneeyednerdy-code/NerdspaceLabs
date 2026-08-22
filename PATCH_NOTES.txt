@@ -1,9 +1,9 @@
 NERDSPACE LABS DASHBOARD
-VERSION 0.3.0 — INTELLIGENCE
+VERSION 0.4.0 — ANALYTICS & EXPERIMENTS
 A project by OneEyedNerdy
 
 PURPOSE
-Transparent Match Engine, Signal Engine and Category Radar.
+Channel comparisons and local Experiment Tracker.
 
 BRANDING
 - Text mark only: NERDSPACE LABS / DASHBOARD.

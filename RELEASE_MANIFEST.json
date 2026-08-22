@@ -1,8 +1,8 @@
 {
   "product": "Nerdspace Labs Dashboard",
   "project_by": "OneEyedNerdy",
-  "version": "0.3.0",
-  "release": "Intelligence",
+  "version": "0.4.0",
+  "release": "Analytics & Experiments",
   "d1_enabled": false,
   "branding": "text-mark-only",
   "deployment": [
