@@ -12,8 +12,9 @@ export async function loadCreatorData(userId){
  ]);
  const followedIds=followedChannels.map(x=>x.broadcaster_id);
  const liveIds=followedStreams.map(s=>s.user_id);
+ const profileIds=[...new Set([...followedIds,...liveIds,userId])];
  const [profiles,liveChannels,schedules]=await Promise.all([
-   safe('twitch.networkProfiles',()=>getUsers(followedIds),[]),
+   safe('twitch.networkProfiles',()=>getUsers(profileIds),[]),
    safe('twitch.networkChannels',()=>getChannels(liveIds),[]),
    safe('twitch.networkSchedules',()=>getSchedules(liveIds,24),new Map())
  ]);
@@ -26,6 +27,14 @@ export async function loadCreatorData(userId){
  const igdbGames=await safe('igdb.games',()=>getIGDBGames(igdbIds),[]);
  const twitchToIgdb=new Map(games.filter(g=>g.igdb_id).map(g=>[g.id,String(g.igdb_id)]));
  const igdbMap=new Map(igdbGames.map(g=>[String(g.id),g]));
- const enrichedWithGenre=enrichedStreams.map(st=>{const ig=igdbMap.get(twitchToIgdb.get(st.game_id));return {...st,genres:(ig?.genres||[]).map(x=>x.name),themes:(ig?.themes||[]).map(x=>x.name),game_modes:(ig?.game_modes||[]).map(x=>x.name)}});
+ const pmap=new Map(profiles.map(p=>[String(p.id),p])); const gmap=new Map(games.map(g=>[String(g.id),g]));
+ const enrichedWithGenre=enrichedStreams.map(st=>{const ig=igdbMap.get(twitchToIgdb.get(st.game_id)),prof=pmap.get(String(st.user_id)),game=gmap.get(String(st.game_id));return {...st,
+   profile_image_url:prof?.profile_image_url||'',offline_image_url:prof?.offline_image_url||'',creator_description:prof?.description||'',
+   game_box_art_url:(game?.box_art_url||'').replace('{width}','285').replace('{height}','380'),
+   stream_thumbnail_url:(st.thumbnail_url||'').replace('{width}','640').replace('{height}','360'),
+   genres:(ig?.genres||[]).map(x=>x.name),themes:(ig?.themes||[]).map(x=>x.name),game_modes:(ig?.game_modes||[]).map(x=>x.name)}});
+ status['twitch.profileImages']={ok:true,count:enrichedWithGenre.filter(x=>x.profile_image_url).length};
+ status['twitch.streamImages']={ok:true,count:enrichedWithGenre.filter(x=>x.stream_thumbnail_url).length};
+ status['twitch.gameArt']={ok:true,count:enrichedWithGenre.filter(x=>x.game_box_art_url).length};
  return {status,user,channel,stream,videos,followedStreams:enrichedWithGenre,followedChannels,clips,followerTotal,publishedSchedule,tracker,games,trackerGames,igdbGames,profiles,schedules};
 }

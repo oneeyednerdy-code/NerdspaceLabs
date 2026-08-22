@@ -1,0 +1,13 @@
+NERDSPACE LABS DASHBOARD 1.20.0 — FINAL PRE-D1 TOOLKIT
+
+This cumulative update folds the remaining pre-D1 roadmap into one release.
+
+- Data Inspector with explicit provider/image counts.
+- Solstice weekly schedule matrix and Find My Windows common-availability tool.
+- Wormhole-style actionable filters remain central to Raid Radar.
+- NerdSync Creator Match keeps independent collaboration + schedule scoring.
+- Network Explorer summarizes live games, IGDB genres and Twitch tags; signals can be sent into Raid Radar.
+- Creator Lists: Favorites, Potential Collabs, Raid Later and local notes.
+- IGDB query expanded for themes, game modes, perspectives, keywords, platforms and similar games for future/extended game intelligence.
+- Existing Twitch profile photos, stream previews, game art, IGDB genre filtering and image diagnostics retained.
+- No D1/KV/R2. Lists and notes stay browser-local.

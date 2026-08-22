@@ -1,0 +1,20 @@
+NERDSPACE LABS DASHBOARD 1.20.0 — FINAL PRE-D1 INSTALL
+
+CUMULATIVE: prior 1.x patches are not required.
+
+1. Extract to a clean folder.
+2. Keep IGDB_CLIENT_SECRET configured in Cloudflare for IGDB features:
+   npx wrangler secret put IGDB_CLIENT_SECRET
+3. Run:
+   npm install
+   npm test
+   npm run build
+   npm run preview
+4. Verify Twitch login, profile photos, stream previews, Data Inspector image counts, Raid filters,
+   Creator Match, weekly Schedule Matrix, Find My Windows, Network Explorer, Creator Lists and local notes.
+5. Test mobile widths 360/390/412px and keyboard/200% zoom.
+6. Deploy:
+   npm run deploy
+
+Cloudflare name remains nerdspacelabsdashboard.
+D1/KV/R2 remain disabled.

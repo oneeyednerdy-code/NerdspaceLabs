@@ -25,7 +25,7 @@ test('schedule inference requires repeated evidence',()=>{
   assert.equal(out.length,1); assert.ok(out[0].confidence>=35);
 });
 import { rankRaidCandidates } from '../js/integrations/wormhole.js';
-import { scheduleCompatibility } from '../js/integrations/solstice.js';
+import { scheduleCompatibility, scheduleProfile, findCommonWindows } from '../js/integrations/solstice.js';
 import { creatorMatch } from '../js/integrations/nerdsync.js';
 
 test('Wormhole raid integration favors similar audience and same game',()=>{
@@ -60,3 +60,14 @@ test('filter engine supports IGDB genres',()=>{
  const rows=[{user_name:'A',game_name:'Game A',viewer_count:20,language:'en',tags:[],genres:['Role-playing (RPG)','Adventure']},{user_name:'B',game_name:'Game B',viewer_count:20,language:'en',tags:[],genres:['Shooter']}];
  assert.equal(filterCreators(rows,{genres:['Role-playing (RPG)']}).length,1);
 });
+
+test('Solstice weekly overlap matches same weekday across different weeks',()=>{
+ const a=scheduleProfile([{start_time:'2026-08-05T17:00:00Z',end_time:'2026-08-05T21:00:00Z',is_recurring:true}],[]);
+ const b=scheduleProfile([{start_time:'2026-08-12T18:00:00Z',end_time:'2026-08-12T20:00:00Z',is_recurring:true}],[]);
+ const r=scheduleCompatibility(a,b);
+ assert.equal(r.overlapMinutes,120);
+ assert.ok(r.sharedDays.includes('Wed'));
+ assert.ok(r.score>=45);
+});
+
+test('common window finder returns shared weekly availability',()=>{const a=scheduleProfile([{start_time:'2026-08-05T17:00:00Z',end_time:'2026-08-05T21:00:00Z'}],[]),b=scheduleProfile([{start_time:'2026-08-12T18:00:00Z',end_time:'2026-08-12T20:30:00Z'}],[]),w=findCommonWindows([a,b],120);assert.ok(w.length>=1);assert.equal(w[0].day,3);assert.ok(w[0].minutes>=120)});

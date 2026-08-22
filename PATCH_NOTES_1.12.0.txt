@@ -1,0 +1,21 @@
+NERDSPACE LABS DASHBOARD 1.12.0 — VISUAL DATA + SOLSTICE SCHEDULE OVERLAP
+
+TWITCH VISUAL DATA
+- Profile requests now cover the union of followed and currently-live creator IDs.
+- Live creator records carry Twitch profile image, offline image, stream thumbnail and game box art data.
+- Stream thumbnail placeholders are converted to 640x360 URLs.
+- Game box-art placeholders are converted to 285x380 URLs.
+- Creator cards use profile image first and game art as fallback.
+- Live stream preview images are displayed on creator cards.
+- Data Status reports profile image, stream image and game art counts.
+- CSP now permits Twitch/JTVNW CDN subdomains.
+
+SCHEDULE OVERLAP
+- Rebuilt overlap around weekly weekday/time windows instead of exact calendar dates.
+- Published Twitch schedules are preferred.
+- Observed VOD timing is fallback evidence.
+- Matching measures direct weekly overlap, shared weekdays, start-time proximity and evidence confidence.
+- Creator Match displays readable overlap such as: 2h 30m overlap • Wed, Fri.
+- A recurring Wednesday schedule can match another Wednesday schedule even when Twitch returned occurrences from different weeks.
+
+D1 remains disabled.

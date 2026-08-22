@@ -8,9 +8,10 @@ import { inferSchedule } from './engines/schedule.js';
 import { buildSignals } from './engines/signals.js';
 import { filterCreators,uniqueOptions } from './engines/filter-engine.js';
 import { rankRaidCandidates } from './integrations/wormhole.js';
-import { scheduleProfile } from './integrations/solstice.js';
+import { scheduleProfile,formatOverlap,weeklyWindows,findCommonWindows } from './integrations/solstice.js';
 import { creatorMatch } from './integrations/nerdsync.js';
 import { downloadDiagnostics } from './diagnostics.js';
+import { getLists,toggleList,setNote,clearLists } from './engines/local-lists.js';
 
 const state={user:null,channel:null,stream:null,videos:[],followedStreams:[],followedChannels:[],clips:[],followerTotal:null,publishedSchedule:[],inferredSchedule:[],gameHistory:[],gameSignals:[],tracker:null,igdbGames:[],raidMatches:[],creatorMatches:[],providerStatus:{},profiles:[],schedules:new Map(),errors:[]};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -25,15 +26,15 @@ function options(select,values){const current=select.value;select.innerHTML='<op
 function filters(prefix){return {search:$(`#${prefix}Search`)?.value||'',minViewers:$(`#${prefix}Min`)?.value||0,maxViewers:$(`#${prefix}Max`)?.value||0,games:[$(`#${prefix}Game`)?.value].filter(Boolean),language:$(`#${prefix}Language`)?.value||'',genres:[$(`#${prefix}Genre`)?.value].filter(Boolean),tags:($(`#${prefix}Tags`)?.value||'').split(',').map(x=>x.trim()).filter(Boolean)}}
 function twitchUrl(login){return `https://www.twitch.tv/${encodeURIComponent(login||'')}`}
 function creatorCard(stream,score,evidence={},kind='raid'){
- const p=profileMap().get(stream.user_id)||{};const tags=(stream.tags||[]).slice(0,5);
+ const p=profileMap().get(stream.user_id)||{};const tags=(stream.tags||[]).slice(0,5);const photo=stream.profile_image_url||p.profile_image_url||stream.game_box_art_url||'';
  return `<article class="creator-tool-card">
- <img class="creator-photo" src="${esc(p.profile_image_url||'')}" alt="" loading="lazy">
+ <img class="creator-photo" src="${esc(photo)}" data-fallback="${esc(stream.game_box_art_url||'')}" alt="${esc(stream.user_name||p.display_name||'Creator')} profile image" loading="lazy" referrerpolicy="no-referrer">
  <div class="creator-main"><h3>${esc(stream.user_name||p.display_name||stream.user_login)}</h3>
  <p>${esc(stream.game_name||'No category')} • ${Number(stream.viewer_count||0).toLocaleString()} viewers • ${esc(stream.language||'—')}</p>
- <p>${esc(stream.title||p.description||'')}</p>
+ <p>${esc(stream.title||stream.creator_description||p.description||'')}</p>${stream.stream_thumbnail_url?`<img class="stream-preview" src="${esc(stream.stream_thumbnail_url)}" alt="${esc(stream.user_name||'Creator')} live preview" loading="lazy" referrerpolicy="no-referrer">`:''}
  <div class="tag-row">${(stream.genres||[]).slice(0,3).map(t=>`<span class="tag genre-tag">${esc(t)}</span>`).join('')}${tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
- <div class="creator-actions"><a class="mini-btn" href="${twitchUrl(stream.user_login)}" target="_blank" rel="noopener">Twitch</a><button class="mini-btn" data-send-game="${esc(stream.game_name||'')}">Find same game</button><button class="mini-btn" data-send-tags="${esc(tags.join(','))}">Use tags</button></div>
- <p>${kind==='raid'?`Audience ${evidence.live??'—'}% • Game ${evidence.game??'—'}% • Tags ${evidence.tags??'limited'}`:`Schedule ${evidence.schedule??'—'}% • Game ${evidence.games??'—'}% • Tags ${evidence.tags??'—'}% • ${evidence.overlapMinutes||0}m overlap`}</p>
+ <div class="creator-actions"><a class="mini-btn" href="${twitchUrl(stream.user_login)}" target="_blank" rel="noopener">Twitch</a><button class="mini-btn" data-send-game="${esc(stream.game_name||'')}">Find same game</button><button class="mini-btn" data-send-tags="${esc(tags.join(','))}">Use tags</button><button class="mini-btn" data-list="favorites" data-creator="${esc(stream.user_id)}">★ Favorite</button><button class="mini-btn" data-list="collabs" data-creator="${esc(stream.user_id)}">Collab</button><button class="mini-btn" data-list="raidLater" data-creator="${esc(stream.user_id)}">Raid later</button></div>
+ <p>${kind==='raid'?`Audience ${evidence.live??'—'}% • Game ${evidence.game??'—'}% • Tags ${evidence.tags??'limited'}`:`Schedule ${evidence.schedule??'—'}% • Game ${evidence.games??'—'}% • Tags ${evidence.tags??'—'}% • ${formatOverlap(evidence)}`}</p>
  </div><div class="scorebox">${score}%<small>${kind==='raid'?'RAID FIT':'CREATOR FIT'}</small></div></article>`;
 }
 function renderTools(){
@@ -45,12 +46,20 @@ function renderTools(){
  const base=filterCreators(state.creatorMatches.map(x=>x.stream),mf);const allowed=new Set(base.map(x=>x.user_id));
  const visibleMatch=state.creatorMatches.filter(x=>allowed.has(x.stream.user_id)&&x.match.overlapMinutes>=minOverlap);
  $('#matchCount').textContent=`${visibleMatch.length} MATCHES`;$('#creatorMatchList').innerHTML=visibleMatch.slice(0,80).map(x=>creatorCard(x.stream,x.match.score,x.match,'match')).join('')||'<p class="empty">No creators match these collaboration filters.</p>';
- bindCrossToolActions();
+ bindCrossToolActions();bindImageFallbacks();
 }
+function bindImageFallbacks(){$$('.creator-photo,.stream-preview').forEach(img=>img.addEventListener('error',()=>{const fb=img.dataset.fallback;if(fb&&img.src!==fb){img.src=fb;delete img.dataset.fallback}else img.classList.add('image-missing')},{once:true}))}
 function bindCrossToolActions(){
+ $$('[data-list]').forEach(b=>b.onclick=()=>{toggleList(b.dataset.list,b.dataset.creator);renderSavedCreators()});
  $$('[data-send-game]').forEach(b=>b.onclick=()=>{showView('raid');$('#raidGame').value=b.dataset.sendGame;renderTools()});
  $$('[data-send-tags]').forEach(b=>b.onclick=()=>{showView('match');$('#matchTags').value=b.dataset.sendTags;renderTools()});
 }
+function countBy(values){const m=new Map();for(const v of values.filter(Boolean))m.set(v,(m.get(v)||0)+1);return [...m].sort((a,b)=>b[1]-a[1])}
+function renderNetwork(){const live=state.followedStreams||[],games=countBy(live.map(x=>x.game_name)),genres=countBy(live.flatMap(x=>x.genres||[])),tags=countBy(live.flatMap(x=>x.tags||[]));$('#networkLiveCount').textContent=live.length;$('#networkGameCount').textContent=games.length;$('#networkGenreCount').textContent=genres.length;$('#networkTagCount').textContent=tags.length;const rows=(a,t)=>a.slice(0,15).map(([n,c])=>`<article class="data-row"><div><strong>${esc(n)}</strong><small>${c} live creators</small></div><button class="mini-btn" data-net-${t}="${esc(n)}">Use filter</button></article>`).join('');$('#networkGames').innerHTML=rows(games,'game');$('#networkGenres').innerHTML=rows(genres,'genre');$('#networkTags').innerHTML=rows(tags,'tag');$$('[data-net-game]').forEach(b=>b.onclick=()=>{showView('raid');$('#raidGame').value=b.dataset.netGame;renderTools()});$$('[data-net-genre]').forEach(b=>b.onclick=()=>{showView('raid');$('#raidGenre').value=b.dataset.netGenre;renderTools()});$$('[data-net-tag]').forEach(b=>b.onclick=()=>{showView('raid');$('#raidTags').value=b.dataset.netTag;renderTools()})}
+function renderScheduleMatrix(){const mine=scheduleProfile(state.publishedSchedule,observedSegments(state.videos)),wins=weeklyWindows(mine),days=['SUN','MON','TUE','WED','THU','FRI','SAT'];$('#scheduleMatrix').innerHTML=days.map((d,i)=>`<div class="schedule-day"><span>${d}</span><div class="schedule-track">${wins.filter(w=>w.day===i).map(w=>`<i class="schedule-block" style="left:${w.start/1440*100}%;width:${Math.max(.5,(w.end-w.start)/1440*100)}%"></i>`).join('')}</div></div>`).join('')}
+function renderCommonWindows(){const mine=scheduleProfile(state.publishedSchedule,observedSegments(state.videos)),top=state.creatorMatches.slice(0,3).map(x=>scheduleProfile(state.schedules.get(x.stream.user_id)||[],[])).filter(x=>x.segments.length),min=Number($('#windowMin')?.value||60),w=findCommonWindows([mine,...top.slice(0,2)],min),days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],fmt=m=>`${String(Math.floor(m/60)%24).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;$('#commonWindows').innerHTML=w.map(x=>`<article class="data-row"><div><strong>${days[x.day]} ${fmt(x.start)}–${fmt(x.end)}</strong><small>${x.minutes} minutes common availability</small></div><div class="confidence good">OPEN</div></article>`).join('')||'<p class="empty">No common window found.</p>'}
+function renderSavedCreators(){const l=getLists(),all=new Map((state.followedStreams||[]).map(x=>[String(x.user_id),x])),ids=[...new Set([...l.favorites,...l.collabs,...l.raidLater])];$('#savedCreators').innerHTML=ids.map(id=>{const c=all.get(String(id));if(!c)return'';const f=[l.favorites.includes(id)?'★ Favorite':'',l.collabs.includes(id)?'Potential collab':'',l.raidLater.includes(id)?'Raid later':''].filter(Boolean).join(' • ');return `<article class="data-row"><div style="width:100%"><strong>${esc(c.user_name||c.user_login)}</strong><small>${esc(f)}</small><textarea class="saved-note" data-note="${esc(id)}" placeholder="Local note…">${esc(l.notes[id]||'')}</textarea></div></article>`}).join('')||'<p class="empty">No saved creators yet.</p>';$$('[data-note]').forEach(t=>t.onchange=()=>setNote(t.dataset.note,t.value))}
+
 function render(){
  $('#version').textContent=`ALPHA ${APP_CONFIG.version}`;$('#loginView').hidden=Boolean(state.user);$('#appShell').hidden=!state.user;if(!state.user)return;
  $('#avatar').src=state.user.profile_image_url||'';$('#displayName').textContent=state.user.display_name;$('#loginName').textContent='@'+state.user.login;$('#livePill').textContent=state.stream?'LIVE':'OFFLINE';$('#livePill').className='status-pill '+(state.stream?'good':'');$('#channelGame').textContent=state.stream?.game_name||state.channel?.game_name||'No category';$('#viewerStat').textContent=state.stream?.viewer_count??'—';$('#vodStat').textContent=state.videos.length;$('#networkStat').textContent=state.followedStreams.length;$('#scheduleStat').textContent=state.publishedSchedule.length?'Published':(state.inferredSchedule.length?'Observed':'Limited');
@@ -59,7 +68,7 @@ function render(){
  $('#gameRadar').innerHTML=state.gameSignals.slice(0,12).map(g=>`<article class="recommend-card"><span>EXPERIMENTAL • ${g.score}% SIGNAL</span><h3>${esc(g.name)}</h3><p>${g.channels} followed creators live • ${g.viewers.toLocaleString()} combined current viewers</p><button class="mini-btn" data-game-to-raid="${esc(g.name)}">Find creators</button></article>`).join('')||'<p class="empty">No adjacent game signals available right now.</p>';
  const sched=state.publishedSchedule.length?state.publishedSchedule.slice(0,12).map(s=>({label:new Date(s.start_time).toLocaleString(),confidence:'PUBLISHED',detail:s.title||s.category?.name||'Scheduled stream'})):state.inferredSchedule.map(s=>({label:`${s.day} around ${s.hour}:00`,confidence:`${s.confidence}%`,detail:`Observed in ${s.count} recent broadcasts`}));$('#scheduleList').innerHTML=sched.map(x=>`<article class="data-row"><div><strong>${esc(x.label)}</strong><small>${esc(x.detail)}</small></div><div class="confidence">${esc(x.confidence)}</div></article>`).join('')||'<p class="empty">No schedule evidence available.</p>';
  $('#trackerData').textContent=state.tracker?'TwitchTracker supplemental historical context loaded.':'TwitchTracker unavailable; Twitch features remain active.';$('#providerStatus').innerHTML=providerRows();$('#followerStat').textContent=state.followerTotal??'—';$('#clipStat').textContent=state.clips.length;$('#followingStat').textContent=state.followedChannels.length;
- renderTools();$$('[data-game-to-raid]').forEach(b=>b.onclick=()=>{showView('raid');$('#raidGame').value=b.dataset.gameToRaid;renderTools()});
+ renderTools();renderNetwork();renderScheduleMatrix();renderCommonWindows();renderSavedCreators();bindImageFallbacks();$$('[data-game-to-raid]').forEach(b=>b.onclick=()=>{showView('raid');$('#raidGame').value=b.dataset.gameToRaid;renderTools()});
 }
 async function creatorSearch(q){
  const box=$('#creatorSearchResults');box.innerHTML='<p class="empty">Searching Twitch…</p>';
@@ -75,5 +84,6 @@ $('#connectBtn').addEventListener('click',()=>{try{beginLogin()}catch(e){$('#log
 ['raidSearch','raidMin','raidMax','raidGame','raidGenre','raidLanguage','raidTags','matchSearch','matchMin','matchMax','matchGame','matchGenre','matchLanguage','matchTags','matchOverlap'].forEach(id=>$('#'+id)?.addEventListener('input',renderTools));
 $('#raidReset').onclick=()=>{['raidSearch','raidMin','raidMax','raidTags'].forEach(id=>$('#'+id).value='');$('#raidGame').value='';$('#raidGenre').value='';$('#raidLanguage').value='';renderTools()};
 $('#matchReset').onclick=()=>{['matchSearch','matchMin','matchMax','matchTags'].forEach(id=>$('#'+id).value='');$('#matchGame').value='';$('#matchGenre').value='';$('#matchLanguage').value='';$('#matchOverlap').value='0';renderTools()};
+$('#findWindowBtn')?.addEventListener('click',renderCommonWindows);$('#windowMin')?.addEventListener('change',renderCommonWindows);$('#clearListsBtn')?.addEventListener('click',()=>{clearLists();renderSavedCreators()});
 $('#creatorSearchForm').addEventListener('submit',e=>{e.preventDefault();creatorSearch($('#creatorSearchInput').value)});
 try{consumeOAuthHash()}catch(e){state.errors.push({time:new Date().toISOString(),message:e.message});$('#loginError').textContent=e.message}load();if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));

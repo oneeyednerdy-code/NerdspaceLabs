@@ -1,0 +1,10 @@
+1.13 Creator Intelligence — included
+1.14 Schedule Lab — included
+1.15 Discovery — included
+1.16 Collaboration — included
+1.17 Game Intelligence — included
+1.18 Network Intelligence — included
+1.19 Workflow Tools — included
+1.20 Final Pre-D1 Polish — current release
+
+D1 should later add opt-in persistence, sync and longitudinal history to tools that already work without it.

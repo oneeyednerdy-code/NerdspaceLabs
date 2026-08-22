@@ -1,0 +1,29 @@
+NERDSPACE 1.12.0 DEPLOYMENT
+
+Run:
+  npm install
+  npm test
+  npm run build
+  npm run preview
+
+IMAGE CHECK
+1. Log in and open Data Status.
+2. Confirm twitch.networkProfiles is OK.
+3. Confirm twitch.profileImages, twitch.streamImages and twitch.gameArt counts.
+4. Open Raid Radar and verify creator profile photos and live preview images.
+5. In browser Network tools, Twitch/JTVNW image requests should return 200.
+
+SCHEDULE CHECK
+1. Open Creator Match.
+2. Use Minimum Overlap.
+3. Confirm matches report weekly overlap plus shared weekdays.
+4. Published schedules should be used first.
+5. Creators without published schedules use observed timing evidence.
+
+IGDB
+Keep IGDB_CLIENT_SECRET configured as a Cloudflare secret for Genre filters.
+
+Deploy:
+  npm run deploy
+
+D1/KV/R2 remain disabled/not required.

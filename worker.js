@@ -26,7 +26,7 @@ async function igdbGames(request,env){
   if(!ids.length) return new Response('[]',{headers:{'content-type':'application/json','cache-control':'public, max-age=86400'}});
   try{
     const token=await getIgdbToken(env);
-    const query=`fields id,name,genres.name,genres.slug,themes.name,game_modes.name,player_perspectives.name,summary,cover.image_id; where id = (${ids.join(',')}); limit 100;`;
+    const query=`fields id,name,genres.name,genres.slug,themes.name,game_modes.name,player_perspectives.name,summary,cover.image_id,similar_games.name,similar_games.cover.image_id,keywords.name,platforms.name; where id = (${ids.join(',')}); limit 100;`;
     const r=await fetch(IGDB_ORIGIN+'/games',{method:'POST',headers:{'Client-ID':env.TWITCH_CLIENT_ID,'Authorization':`Bearer ${token}`,'Accept':'application/json','Content-Type':'text/plain'},body:query});
     const text=await r.text();
     return new Response(text,{status:r.status,headers:{'content-type':'application/json; charset=utf-8','cache-control':r.ok?'public, max-age=86400':'no-store'}});
