@@ -1,0 +1,18 @@
+NERDSPACE LABS 1.21.5 — TWITCH LOGIN HOTFIX
+
+FIXED
+- The new 1.21.3/1.21.4 launch screen was trying to delegate login to #loginBtn / [data-login].
+- The actual Nerdspace Twitch login control is #connectBtn and the real authentication entry point is beginLogin().
+- Because the delegated target did not exist, the loading screen opened but Twitch OAuth never started.
+- Launch login now calls beginLogin() directly.
+- Added authentication-stage diagnostic events for button click, beginLogin, OAuth callback processing and token validation.
+- Authentication failures return to the login screen with an error instead of leaving the user on an endless loading screen.
+
+DIAGNOSTIC SIGNATURE FIXED
+Previous affected logs typically showed:
+  launch | workspace loading started
+  step | identity | active
+  authenticated: false
+with no later OAuth/token events.
+
+No D1/KV/R2 required.

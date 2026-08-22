@@ -90,3 +90,5 @@ test('launch flow exposes logged out loading and ready states',async()=>{const f
 
 test('loading screen exposes activity and diagnostic recovery controls',async()=>{const fs=await import('node:fs/promises');const html=await fs.readFile(new URL('../index.html',import.meta.url),'utf8');for(const id of ['loadingElapsed','loadingStatusText','loadingDownloadLog','loadingCopyLog','loadingRetry','loadingBackToLogin'])assert.ok(html.includes(`id="${id}"`),id)});
 test('launch diagnostics redact secret-like values',async()=>{const fs=await import('node:fs/promises');const src=await fs.readFile(new URL('../js/services/launch-diagnostics.js',import.meta.url),'utf8');for(const x of ['access_token','refresh_token','client_secret','authorization','REDACTED'])assert.ok(src.includes(x))});
+
+test('launch login invokes Twitch beginLogin directly',async()=>{const fs=await import('node:fs/promises');const src=await fs.readFile(new URL('../js/app.js',import.meta.url),'utf8');assert.match(src,/launchLoginBtn[\s\S]{0,500}beginLogin\(\)/);assert.ok(!src.includes("$('#loginBtn')||$('[data-login]')"))});

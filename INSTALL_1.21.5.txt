@@ -1,0 +1,28 @@
+NERDSPACE LABS 1.21.5 AUTH HOTFIX
+
+npm install
+npm test
+npm run build
+npm run preview
+
+IMPORTANT TEST
+1. Use a private browser window.
+2. Open Nerdspace.
+3. Click Log in with Twitch.
+4. You should be redirected into Twitch OAuth instead of remaining indefinitely on Building your creator workspace.
+5. Complete Twitch authorization.
+6. Confirm Nerdspace returns and validates the token.
+7. Confirm the populated workspace opens.
+8. Download a diagnostic log if it does not.
+
+A healthy diagnostic sequence should now include auth events such as:
+- login button clicked
+- beginLogin invoked
+- oauth callback checked
+- validating token
+- token valid
+
+Deploy:
+npm run deploy
+
+No D1 required.
