@@ -1,0 +1,15 @@
+NERDSPACE LABS 1.21.7
+npm install
+npm test
+npm run build
+npm run preview
+
+Verify:
+- Home has no Raid/Match cards below it.
+- Creator Match cards only render on Creator Match.
+- Raid cards only render on Raid Radar.
+- Switch Home/Raid/Match/Schedule/Network repeatedly.
+- Test 1920, 1440, 768 and 390 widths.
+- Login/loading/transition show 1.21.7.
+
+Deploy: npm run deploy

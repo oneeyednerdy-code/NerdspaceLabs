@@ -1,0 +1,11 @@
+NERDSPACE LABS 1.21.7 — LAYOUT CONTAINMENT HOTFIX
+
+- Fixed Creator Match cards appearing underneath unrelated dashboard pages.
+- Fixed malformed closing tags introduced when unified Wormhole filter wrappers were added.
+- Repaired Raid and Creator Match filter-panel nesting.
+- Result grids now remain inside their own hidden views.
+- Added explicit hidden-view and result-grid containment.
+- Normalized Raid/Match responsive grid widths.
+- Version labels updated to 1.21.7.
+
+The supplied screenshot directly exposed this bug: the two match cards at the bottom were not supposed to be part of the active page. They had escaped the hidden Creator Match section because of malformed HTML nesting.

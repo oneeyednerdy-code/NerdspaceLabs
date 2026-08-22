@@ -24,7 +24,21 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=(v='')=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const profileMap=()=>new Map(state.profiles.map(p=>[p.id,p]));
 function setStatus(t,k=''){const e=$('#systemStatus');e.textContent=t;e.dataset.kind=k}
-function showView(id){$$('.view').forEach(v=>v.hidden=v.id!==id);$$('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id))}
+function showView(id){
+  const target=document.getElementById(id);
+  if(!target||!target.classList.contains('view')){
+    recordLaunchEvent('navigation','invalid view',id||'');
+    return;
+  }
+  $$('.view').forEach(v=>v.hidden=v!==target);
+  $$('[data-view]').forEach(b=>{
+    const active=b.dataset.view===id;
+    b.classList.toggle('active',active);
+    if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
+  });
+  recordLaunchEvent('navigation','view opened',id);
+  window.scrollTo({top:0,left:0,behavior:'auto'});
+}
 function observedSegments(videos=[]){return videos.slice(0,30).map(v=>{const start=new Date(v.created_at);const h=Number(String(v.duration).match(/(\d+)h/)?.[1]||0),m=Number(String(v.duration).match(/(\d+)m/)?.[1]||0);const end=new Date(start.getTime()+Math.max(60,h*60+m)*60000);return {startTime:start.toISOString(),endTime:end.toISOString()}})}
 function referenceStream(){if(state.stream)return state.stream;const v=state.videos[0];if(!v)return null;return {user_id:state.user.id,viewer_count:state.tracker?.avg_viewers||state.tracker?.average_viewers||Math.max(1,v.view_count||1),started_at:v.created_at,game_id:state.channel?.game_id||'',game_name:state.channel?.game_name||'',tags:state.channel?.tags||[]}}
 function providerRows(){return Object.entries(state.providerStatus).map(([k,v])=>`<article class="data-row"><div><strong>${esc(k)}</strong><small>${v.ok?`Loaded${Number.isFinite(v.count)?` • ${v.count} records`:''}`:esc(v.error||'Unavailable')}</small></div><div class="confidence ${v.ok?'good':''}">${v.ok?'OK':'!'}</div></article>`).join('')}
@@ -176,7 +190,12 @@ async function creatorSearch(q){
  }catch(e){box.innerHTML=`<p class="empty">Search failed: ${esc(e.message)}</p>`}
 }
 async function load(){setStatus('CONNECTING TO TWITCH…');recordLaunchEvent('auth','validating token');const valid=await validateToken();if(!valid){recordLaunchEvent('auth','no valid token');render();setStatus('READY');return}recordLaunchEvent('auth','token valid');launchStep('identity','active','Loading');const data=await loadCreatorData(valid.user_id);state.providerStatus=data.status;if(!data.user){setStatus('TWITCH IDENTITY FAILED','warn');render();return}Object.assign(state,data);state.inferredSchedule=inferSchedule(state.videos);state.gameHistory=summarizeGameHistory(state.clips,state.games,state.channel);state.gameSignals=buildGameSignals(state.gameHistory,state.followedStreams,state.trackerGames||new Map());const profiles=profileMap();const ref=referenceStream();state.raidMatches=rankRaidCandidates(ref,state.followedStreams,profiles);const mine=scheduleProfile(state.publishedSchedule,observedSegments(state.videos));state.creatorMatches=state.followedStreams.slice(0,80).map(stream=>{const theirs=scheduleProfile(state.schedules.get(stream.user_id)||[],[]);return {stream,match:creatorMatch(ref||{},stream,mine,theirs)}}).filter(x=>x.match.score>0).sort((a,b)=>b.match.score-a.match.score);storage.set('last-profile',{displayName:state.user.display_name,updatedAt:Date.now()});const failures=Object.values(state.providerStatus).filter(x=>!x.ok).length;setStatus(failures?'PARTIAL SIGNAL':'SIGNAL LOCKED',failures?'warn':'good');render()}
-$('#connectBtn').addEventListener('click',()=>{try{recordLaunchEvent('auth','legacy connect button clicked');beginLogin()}catch(e){recordLaunchEvent('auth','beginLogin failed',e?.message||String(e));$('#loginError').textContent=e.message}});$('#logoutBtn').addEventListener('click',()=>{logout();location.reload()});$('#diagnosticsBtn').addEventListener('click',()=>downloadDiagnostics(state));$('#clearDataBtn').addEventListener('click',()=>{storage.clearLocalData();setStatus('LOCAL DATA CLEARED','good')});$$('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+$('#connectBtn').addEventListener('click',()=>{try{recordLaunchEvent('auth','legacy connect button clicked');beginLogin()}catch(e){recordLaunchEvent('auth','beginLogin failed',e?.message||String(e));$('#loginError').textContent=e.message}});$('#logoutBtn').addEventListener('click',()=>{logout();location.reload()});$('#diagnosticsBtn').addEventListener('click',()=>downloadDiagnostics(state));$('#clearDataBtn').addEventListener('click',()=>{storage.clearLocalData();setStatus('LOCAL DATA CLEARED','good')});document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-view]');
+  if(!b)return;
+  e.preventDefault();
+  showView(b.dataset.view);
+});
 ['raidSearch','raidMin','raidMax','raidGame','raidGenre','raidLanguage','raidTags','matchSearch','matchMin','matchMax','matchGame','matchGenre','matchLanguage','matchTags','matchOverlap'].forEach(id=>$('#'+id)?.addEventListener('input',renderTools));
 $('#raidReset').onclick=()=>{['raidSearch','raidMin','raidMax','raidTags'].forEach(id=>$('#'+id).value='');$('#raidGame').value='';$('#raidGenre').value='';$('#raidLanguage').value='';renderTools()};
 $('#matchReset').onclick=()=>{['matchSearch','matchMin','matchMax','matchTags'].forEach(id=>$('#'+id).value='');$('#matchGame').value='';$('#matchGenre').value='';$('#matchLanguage').value='';$('#matchOverlap').value='0';renderTools()};

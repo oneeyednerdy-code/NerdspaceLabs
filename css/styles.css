@@ -103,3 +103,16 @@ details.compact-section{border:1px solid var(--line);border-radius:10px;backgrou
 @media(prefers-reduced-motion:reduce){.workspace-mini-loader{animation:none;border-color:var(--purple2)}}
 
 .creator-photo.image-missing{display:block!important;background:linear-gradient(135deg,#17121f,#0b0811);border:1px solid var(--line)}
+
+/* 1.21.7 layout containment hotfix */
+.view[hidden]{display:none!important}
+.view>.creator-grid,.view>.cards,.view>.discovery-feed{width:100%;min-width:0}
+#creatorMatchList,#raidList,#creatorSearchResults{position:relative;contain:layout style}
+#creatorMatchList.creator-grid,#raidList.creator-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));align-items:stretch}
+#creatorMatchList .creator-tool-card,#raidList .creator-tool-card{width:auto;max-width:none;margin:0}
+@media(max-width:760px){#creatorMatchList.creator-grid,#raidList.creator-grid{grid-template-columns:1fr}}
+
+/* 1.21.8 navigation interaction hotfix */
+.sidebar [data-view],.mobile-nav [data-view]{position:relative;z-index:2;pointer-events:auto}
+.view{position:relative;z-index:1}
+.view[hidden]{display:none!important}

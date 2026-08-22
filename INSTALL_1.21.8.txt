@@ -1,0 +1,37 @@
+NERDSPACE LABS 1.21.8
+
+npm install
+npm test
+npm run build
+npm run preview
+
+CLICK TEST
+After login, click every navigation item:
+- Mission Control
+- Creators
+- Creator Search
+- Games
+- Collaborations
+- Schedule Lab
+- Network Explorer
+- Creator Lists
+- Insights
+- Data Inspector
+- System
+
+Then test the mobile navigation buttons.
+
+Also verify:
+- Wormhole filter Show/Hide buttons.
+- Creator card action buttons.
+- Game Radar "Find creators".
+- Network "Use filter" actions.
+- Schedule controls.
+- Creator Search form.
+- Diagnostic buttons.
+
+If navigation still fails, download a diagnostic log. It should now include:
+navigation | view opened | <view name>
+
+Deploy:
+npm run deploy

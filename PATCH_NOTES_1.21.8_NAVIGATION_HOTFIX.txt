@@ -1,0 +1,18 @@
+NERDSPACE LABS 1.21.8 — NAVIGATION / CLICK HOTFIX
+
+ROOT CAUSE
+- Network Explorer still had malformed unified-filter HTML.
+- Its filters-panel closed before filters-panel__content.
+- Browser HTML recovery could therefore nest later dashboard views under Network Explorer.
+- Navigation buttons were firing, but the malformed DOM meant the requested view could remain trapped inside a hidden parent. This made the dashboard look like nothing worked when clicked.
+
+FIXED
+- Repaired Network Explorer filter panel nesting.
+- All Network controls now live inside the Wormhole-style filter panel.
+- Later views are no longer structurally nested inside Network Explorer.
+- Replaced per-button navigation listeners with delegated navigation handling.
+- Navigation now validates the destination, updates active/aria-current state, scrolls to the top, and records navigation events in diagnostics.
+- Added explicit pointer/stacking rules for desktop and mobile navigation.
+- Version bumped to 1.21.8.
+
+No D1/KV/R2 required.
