@@ -1,9 +1,9 @@
 NERDSPACE LABS DASHBOARD
-VERSION 0.2.0 — UNIFIED TOOLS
+VERSION 0.3.0 — INTELLIGENCE
 A project by OneEyedNerdy
 
 PURPOSE
-Shared Creator Passport plus Wormhole/NerdSync/Solstice integration architecture.
+Transparent Match Engine, Signal Engine and Category Radar.
 
 BRANDING
 - Text mark only: NERDSPACE LABS / DASHBOARD.
