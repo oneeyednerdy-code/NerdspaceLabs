@@ -1,9 +1,9 @@
 NERDSPACE LABS DASHBOARD
-VERSION 0.5.0 — CREATOR OPERATIONS
+VERSION 0.6.0 — CHANNEL INTELLIGENCE
 A project by OneEyedNerdy
 
 PURPOSE
-Pre-stream, live and post-stream workflow specifications.
+Objective Channel Audit and consistency analysis.
 
 BRANDING
 - Text mark only: NERDSPACE LABS / DASHBOARD.

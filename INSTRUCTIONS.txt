@@ -1,5 +1,5 @@
-NERDSPACE LABS DASHBOARD 0.5.0
-Creator Operations
+NERDSPACE LABS DASHBOARD 0.6.0
+Channel Intelligence
 
 1. Replace REPLACE_WITH_YOUR_TWITCH_CLIENT_ID in config.js and wrangler.jsonc.
 2. Register the exact production and preview OAuth callback URLs with Twitch.
