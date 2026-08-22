@@ -1,0 +1,12 @@
+NERDSPACE LABS 1.21.4 — LOADING DIAGNOSTICS
+
+- Added an animated Nerdspace orbital loader to Building Your Creator Workspace.
+- Active loading steps pulse so the page visibly communicates that work is continuing.
+- Added elapsed loading time and changing status text.
+- After 15 seconds the UI explains that loading is still in progress.
+- After 30 seconds the UI explicitly recommends retrying or sending a diagnostic log.
+- Added Download diagnostic log, Copy diagnostic log, Retry loading and Back to login controls directly on the loading screen.
+- Diagnostic output records launch stages and a non-secret state summary.
+- Diagnostic sanitizer redacts common token/secret labels.
+- Reduced-motion users receive a static activity indicator instead of forced animation.
+- Existing authenticated workspace and pre-D1 features retained.

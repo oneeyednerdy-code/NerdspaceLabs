@@ -1,0 +1,22 @@
+NERDSPACE LABS 1.21.4
+Cumulative over 1.21.3.
+
+npm install
+npm test
+npm run build
+npm run preview
+
+VERIFY
+1. Login and confirm orbital loading animation appears.
+2. Confirm elapsed seconds increment.
+3. Confirm active loading step visibly pulses.
+4. Confirm Download diagnostic log produces a TXT.
+5. Confirm Copy diagnostic log copies text.
+6. Confirm Retry loading reloads.
+7. Confirm Back to login returns to login-only screen.
+8. Leave loading open >15s and >30s to verify recovery messaging.
+9. Confirm authenticated workspace still opens normally.
+10. Verify reduced-motion mode, mobile widths and 200% zoom.
+
+Deploy: npm run deploy
+No D1 required.

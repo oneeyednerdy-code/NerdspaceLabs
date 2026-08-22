@@ -17,6 +17,7 @@ import { getWorkspace,saveWorkspace,savePreset } from './engines/workspace-setti
 import { paginate } from './engines/pagination.js';
 import { normalizeGenre } from './engines/genre-taxonomy.js';
 import { createLaunchFlow } from './services/launch-flow.js';
+import { recordLaunchEvent,downloadLaunchDiagnostic,copyLaunchDiagnostic,launchElapsedSeconds } from './services/launch-diagnostics.js';
 
 const state={user:null,channel:null,stream:null,videos:[],followedStreams:[],followedChannels:[],clips:[],followerTotal:null,publishedSchedule:[],inferredSchedule:[],gameHistory:[],gameSignals:[],tracker:null,igdbGames:[],raidMatches:[],creatorMatches:[],providerStatus:{},profiles:[],schedules:new Map(),errors:[]};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -131,10 +132,10 @@ function renderUnifiedFilterChips(){
 function renderFilteredGames(){const q=($('#gameFilterSearch')?.value||'').toLowerCase(),g=($('#gameFilterGenre')?.value||'').toLowerCase();['#gameHistory','#gameRadar'].forEach(sel=>{$$(sel+' > *').forEach(card=>{const t=card.textContent.toLowerCase();card.hidden=Boolean((q&&!t.includes(q))||(g&&!t.includes(g)))})})}
 
 const launchFlow=createLaunchFlow({authGate:$('#authGate'),loading:$('#workspaceLoading'),app:$('#authenticatedApp'),error:$('#authGateError'),steps:name=>$(`[data-launch-step="${name}"]`)});
-function launchStep(name,status,label){launchFlow.setStep(name,status,label)}
+function launchStep(name,status,label){launchFlow.setStep(name,status,label);recordLaunchEvent('step',name,status||label||'');const statusEl=$('#loadingStatusText');if(statusEl&&status==='active')statusEl.textContent=`Loading ${name}…`}
 function showLoggedOut(message=''){launchFlow.loggedOut(message)}
-function showWorkspaceLoading(){launchFlow.loading();launchStep('identity','active','Loading')}
-function showAuthenticatedWorkspace(){launchFlow.ready()}
+function showWorkspaceLoading(){launchFlow.loading();recordLaunchEvent('launch','workspace loading started');launchStep('identity','active','Loading')}
+function showAuthenticatedWorkspace(){recordLaunchEvent('launch','workspace ready');launchFlow.ready()}
 
 function render(){
   if(state.user){launchStep('identity','done','Ready');if(state.followedStreams||state.following)launchStep('following','done','Ready');if(state.publishedSchedule||state.schedule)launchStep('schedule','done','Ready');if(state.videos?.length)launchStep('history','done','Ready');if(state.discoveryFeed||state.discovery||state.searchResults)launchStep('discovery','done','Ready');if((state.followedStreams||[]).some(x=>(x.genres||[]).length))launchStep('igdb','done','Ready');showAuthenticatedWorkspace()}else{showLoggedOut()}
@@ -163,6 +164,12 @@ $('#raidReset').onclick=()=>{['raidSearch','raidMin','raidMax','raidTags'].forEa
 $('#matchReset').onclick=()=>{['matchSearch','matchMin','matchMax','matchTags'].forEach(id=>$('#'+id).value='');$('#matchGame').value='';$('#matchGenre').value='';$('#matchLanguage').value='';$('#matchOverlap').value='0';renderTools()};
 $('#findWindowBtn')?.addEventListener('click',renderCommonWindows);$('#windowMin')?.addEventListener('change',renderCommonWindows);$('#clearListsBtn')?.addEventListener('click',()=>{clearLists();renderSavedCreators()});
 $('#launchLoginBtn')?.addEventListener('click',()=>{showWorkspaceLoading();const existing=$('#loginBtn')||$('[data-login]');if(existing)existing.click()});
+const diagnosticSummary=()=>({authenticated:Boolean(state.user),followedStreams:(state.followedStreams||[]).length,hasSchedule:Boolean(state.publishedSchedule||state.schedule),hasDiscovery:Boolean(state.discoveryFeed||state.discovery||state.searchResults),igdbEnriched:(state.followedStreams||[]).filter(x=>(x.genres||[]).length).length});
+$('#loadingDownloadLog')?.addEventListener('click',()=>downloadLaunchDiagnostic(diagnosticSummary()));
+$('#loadingCopyLog')?.addEventListener('click',async()=>{const b=$('#loadingCopyLog');try{await copyLaunchDiagnostic(diagnosticSummary());b.textContent='Copied';setTimeout(()=>b.textContent='Copy diagnostic log',1800)}catch{b.textContent='Copy failed'}});
+$('#loadingRetry')?.addEventListener('click',()=>{recordLaunchEvent('recovery','manual retry');location.reload()});
+$('#loadingBackToLogin')?.addEventListener('click',()=>{recordLaunchEvent('recovery','back to login');showLoggedOut('Loading was cancelled. You can try signing in again.')});
+setInterval(()=>{if($('#workspaceLoading')?.hidden)return;const sec=launchElapsedSeconds(),el=$('#loadingElapsed');if(el)el.textContent=sec+'s';const st=$('#loadingStatusText');if(st&&sec>=15)st.textContent='Still working — you can download a diagnostic log below.';if(st&&sec>=30)st.textContent='This is taking longer than expected. Try Retry loading or send us the diagnostic log.'},1000);
 initUnifiedFilters();renderWorkspaceControls();
 $$('[data-source]').forEach(b=>b.onclick=()=>{$$('[data-source]').forEach(x=>x.classList.remove('active'));b.classList.add('active');discoverySource=b.dataset.source;renderTools();renderCompactNetwork()});
 ['scheduleFollowerSearch','scheduleMinOverlap','scheduleDay','scheduleMatchGenre','scheduleLiveOnly','scheduleSort'].forEach(id=>$('#'+id)?.addEventListener(id==='scheduleFollowerSearch'?'input':'change',renderFollowerScheduleMatches));

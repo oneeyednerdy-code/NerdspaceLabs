@@ -31,5 +31,5 @@ for(const page of ['index.html','privacy.html']){
 await cp(path.join(root,'_headers'),path.join(dist,'_headers'));
 await cp(path.join(root,'manifest.webmanifest'),path.join(dist,'manifest.webmanifest'));
 await cp(path.join(root,'sw.js'),path.join(dist,'sw.js'));
-await writeFile(path.join(dist,'version.json'),JSON.stringify({name:'Nerdspace Labs Dashboard',version:'1.21.3'},null,2));
-console.log('Built Nerdspace Labs Dashboard Alpha 1.21.3 into dist/');
+await writeFile(path.join(dist,'version.json'),JSON.stringify({name:'Nerdspace Labs Dashboard',version:'1.21.4'},null,2));
+console.log('Built Nerdspace Labs Dashboard Alpha 1.21.4 into dist/');
