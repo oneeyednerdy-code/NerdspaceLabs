@@ -8,13 +8,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/styles-c615b014.css">
+  <link rel="stylesheet" href="/assets/styles-d067a6a3.css">
 <link rel="manifest" href="/manifest.webmanifest">
 </head>
-<body><section id="authGate" class="launch-screen"><div class="launch-card"><div class="launch-wordmark">NERDSPACE <span>LABS</span></div><p class="launch-kicker">CREATOR WORKSPACE</p><h1>Your Twitch creator toolkit.</h1><p class="launch-copy">Discover creators, compare schedules, explore games and fine tune your network from one workspace.</p><button id="launchLoginBtn" class="launch-login primary" type="button">Log in with Twitch</button><p id="authGateError" class="launch-error" hidden></p><div class="launch-meta"><span>No permanent creator data stored.</span><span>Project by OneEyedNerdy</span></div></div></section>
+<body><section id="authGate" class="launch-screen"><div class="launch-card"><div class="launch-wordmark">NERDSPACE <span>LABS</span></div><p class="launch-kicker">CREATOR WORKSPACE</p><h1>Your Twitch creator toolkit.</h1><p class="launch-copy">Discover creators, compare schedules, explore games and fine tune your network from one workspace.</p><button id="launchLoginBtn" class="launch-login primary" type="button">Log in with Twitch</button><p id="authGateError" class="launch-error" hidden></p><div class="launch-meta"><span>No permanent creator data stored.</span><span>Project by OneEyedNerdy</span><span class="app-version">v1.21.6</span></div></div></section>
 <section id="workspaceLoading" class="launch-screen" hidden aria-live="polite"><div class="launch-card loading-card"><div class="launch-wordmark">NERDSPACE <span>LABS</span></div><p class="launch-kicker">CREATOR WORKSPACE</p><h1>Building your creator workspace…</h1><div class="workspace-loader" aria-hidden="true"><div class="workspace-loader__orbit"><i></i></div><div class="workspace-loader__core"></div></div><p class="launch-copy">Loading the Twitch data Nerdspace needs to open your workspace.</p><div class="launch-progress"><div class="launch-step" data-launch-step="identity"><i></i><span>Twitch profile</span><b>Waiting</b></div><div class="launch-step" data-launch-step="following"><i></i><span>Following & live creators</span><b>Waiting</b></div><div class="launch-step" data-launch-step="schedule"><i></i><span>Schedule</span><b>Waiting</b></div><div class="launch-step supplemental" data-launch-step="history"><i></i><span>Game history</span><b>Queued</b></div><div class="launch-step supplemental" data-launch-step="discovery"><i></i><span>Creator discovery</span><b>Queued</b></div><div class="launch-step supplemental" data-launch-step="igdb"><i></i><span>IGDB enrichment</span><b>Queued</b></div></div><div class="loading-status"><span id="loadingStatusText">Connecting to Twitch…</span><span id="loadingElapsed">0s</span></div>
 <p class="loading-note">Core Twitch data opens Nerdspace. Supplemental sources can finish after launch.</p>
-<div class="loading-diagnostics">
+<div class="loading-version">Nerdspace Labs v1.21.6</div><div class="loading-diagnostics">
   <span>Taking too long?</span>
   <button id="loadingDownloadLog" class="diagnostic-link" type="button">Download diagnostic log</button>
   <button id="loadingCopyLog" class="diagnostic-link" type="button">Copy diagnostic log</button>
@@ -26,7 +26,7 @@
     <a class="brand" href="/" aria-label="Nerdspace Labs Dashboard">
       <span><b>NERDSPACE LABS</b><small>DASHBOARD</small></span>
     </a>
-    <div class="top-actions"><span id="version" class="mono">ALPHA 1.21.5</span><span id="systemStatus" class="system-status">READY</span></div>
+    <div class="top-actions"><span id="version" class="mono">ALPHA 1.21.6</span><span id="systemStatus" class="system-status">READY</span></div>
   </header>
 
   <main id="loginView" class="landing">
@@ -150,6 +150,6 @@
     <button data-view="games">GAMES</button><button data-view="settings">MORE</button>
   </nav>
   <footer><span>Nerdspace Labs Dashboard • A project by OneEyedNerdy</span><span>No promises of growth. Better information for your decisions.</span></footer>
-  <script type="module" src="/assets/app-V4PUHYPF.js"></script>
-<div id="drawerBackdrop" class="drawer-backdrop" hidden></div><aside id="creatorDrawer" class="creator-drawer" hidden><div class="drawer-head"><div><p class="eyebrow">CREATOR PASSPORT</p><h2 id="drawerName">Creator</h2></div><button id="drawerClose" class="secondary drawer-close" aria-label="Close">×</button></div><div id="drawerBody"></div></aside></div></body>
+  <script type="module" src="/assets/app-V7RZR3XZ.js"></script>
+<div id="drawerBackdrop" class="drawer-backdrop" hidden></div><aside id="creatorDrawer" class="creator-drawer" hidden><div class="drawer-head"><div><p class="eyebrow">CREATOR PASSPORT</p><h2 id="drawerName">Creator</h2></div><button id="drawerClose" class="secondary drawer-close" aria-label="Close">×</button></div><div id="drawerBody"></div></aside></div><div id="workspaceTransition" class="workspace-transition" hidden aria-live="polite"><div class="workspace-transition__inner"><div class="workspace-mini-loader" aria-hidden="true"></div><strong>Preparing your dashboard…</strong><span>Rendering creator matches and workspace tools.</span><small>v1.21.6</small></div></div></body>
 </html>

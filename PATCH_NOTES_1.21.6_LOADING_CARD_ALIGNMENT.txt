@@ -1,0 +1,13 @@
+NERDSPACE LABS 1.21.6 — LOAD TRANSITION & MATCH CARD ALIGNMENT
+
+- Added v1.21.6 to the login screen.
+- Added v1.21.6 to Building Your Creator Workspace.
+- Added a short Preparing Your Dashboard transition between data readiness and the populated UI.
+- The transition remains visible while the browser performs the first populated layout, removing the brief blank/unmessaged lag.
+- Added version number to the transition state.
+- Prevented authenticated re-renders from repeatedly triggering the launch transition.
+- Normalized creator/match card grid structure so cards align even when titles, descriptions, tags or actions have different lengths.
+- Creator actions anchor to the bottom of cards.
+- Creator images use stable square dimensions and object-fit.
+- Failed creator images retain their layout footprint instead of collapsing the card and throwing neighboring cards out of alignment.
+- Existing Twitch login diagnostics and all 1.21.5 functionality retained.

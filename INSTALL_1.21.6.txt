@@ -1,0 +1,20 @@
+NERDSPACE LABS 1.21.6
+
+npm install
+npm test
+npm run build
+npm run preview
+
+VERIFY
+1. Login screen shows v1.21.6 at bottom.
+2. Loading screen shows v1.21.6.
+3. Complete Twitch login.
+4. Confirm Preparing your dashboard appears during the brief render/layout interval.
+5. Confirm the dashboard never sits blank without status messaging.
+6. Open Creator Match / Discovery and compare cards with short/long names, tags and missing images.
+7. Confirm cards align and action buttons sit consistently at the bottom.
+8. Test 360/390/412/768/1440 widths.
+9. Download diagnostics and confirm launch events include workspace core ready and workspace rendered.
+
+Deploy: npm run deploy
+No D1 required.
