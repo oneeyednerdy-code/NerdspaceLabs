@@ -1,0 +1,43 @@
+NERDSPACE LABS DASHBOARD 1.10.2
+DATA + TYPOGRAPHY HOTFIX
+A project by OneEyedNerdy
+
+FIXED — TYPOGRAPHY
+- Changed font loading to match the established Wormhole/NerdSync/Solstice pattern:
+  Space Grotesk 500/600/700, Inter 400/500/600/700, IBM Plex Mono 500/600.
+- Fonts are now loaded from explicit <link> tags with Google Fonts preconnects instead of CSS @import.
+- Added the ecosystem font variables --font, --display and --mono.
+- Brand remains a text mark only.
+
+FIXED — TWITCH DATA MODEL
+- Removed the incorrect assumption that Twitch Get Videos returns game_id.
+- Twitch's Get Videos response does not expose a game/category ID.
+- Game/category evidence now uses Twitch Clips (which do expose game_id), current channel category,
+  current followed-live categories, and Twitch game metadata.
+- Clip evidence is bounded to a 90-day window.
+- VODs remain used for observed schedule timing and VOD-level information, not fake game history.
+
+ADDED — TWITCHTRACKER CATEGORY DATA
+- Added /api/twitchtracker-game-summary.
+- Uses TwitchTracker's documented basic category summary API:
+  /api/games/summary/[twitch_id or full_name]
+- Game Radar can enrich up to 12 current candidate categories with TwitchTracker category context.
+- TwitchTracker remains supplemental; failure does not break Twitch features.
+- No Twitch OAuth token is sent to TwitchTracker.
+
+DATA PROVIDER BEHAVIOR
+- Identity, channel, live stream, VODs, followed-live, followed channels, clips, followers,
+  schedule, Twitch games, TwitchTracker channel summary, TwitchTracker game summaries,
+  network profiles and bounded network schedules remain independently reported.
+- Partial provider failures produce PARTIAL SIGNAL instead of collapsing the dashboard.
+
+KNOWN API LIMIT
+Twitch does not provide historical per-VOD game/category IDs through Get Videos. Nerdspace therefore
+does not label VODs with invented game data. Rich historical stream/category records require another
+legitimate data source or future persistence collected while streams occur.
+
+TESTS
+- npm test: 6/6 pass.
+- JavaScript syntax check: pass.
+- npm run build could not be completed in the build environment because esbuild dependencies were
+  not installed. Run npm install before npm run build on the deployment machine.

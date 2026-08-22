@@ -1,4 +1,5 @@
 import { onRequestGet as twitchTrackerSummary } from './functions/api/twitchtracker-summary.js';
+import { onRequestGet as twitchTrackerGameSummary } from './functions/api/twitchtracker-game-summary.js';
 
 const HELIX_ORIGIN = 'https://api.twitch.tv';
 const PREFIX = '/api/twitch/helix';
@@ -53,6 +54,10 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname.startsWith(PREFIX + '/')) return proxy(request, env);
+    if (url.pathname === '/api/twitchtracker-game-summary') {
+      if (request.method !== 'GET') return error('Method not allowed.', 405);
+      return twitchTrackerGameSummary({request, env, waitUntil: ctx.waitUntil.bind(ctx)});
+    }
     if (url.pathname === '/api/twitchtracker-summary') {
       if (request.method !== 'GET') return error('Method not allowed.', 405);
       return twitchTrackerSummary({request, env, waitUntil: ctx.waitUntil.bind(ctx)});

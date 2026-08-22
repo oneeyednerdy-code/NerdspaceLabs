@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { summarizeGameHistory, buildGameSignals } from '../js/engines/game-radar.js';
 import { inferSchedule } from '../js/engines/schedule.js';
 
-test('game history groups VODs by game',()=>{
+test('game history groups clip category evidence',()=>{
   const videos=[{game_id:'1',view_count:10},{game_id:'1',view_count:20},{game_id:'2',view_count:5}];
   const games=[{id:'1',name:'Game A'},{id:'2',name:'Game B'}];
   const out=summarizeGameHistory(videos,games);
-  assert.equal(out[0].name,'Game A'); assert.equal(out[0].streams,2); assert.equal(out[0].avgVodViews,15);
+  assert.equal(out[0].name,'Game A'); assert.equal(out[0].clips,2); assert.equal(out[0].avgClipViews,15);
 });
 
 test('game radar excludes recent games',()=>{

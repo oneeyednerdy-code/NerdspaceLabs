@@ -1,0 +1,26 @@
+NERDSPACE LABS DASHBOARD 1.10.2 — INSTALL / UPDATE
+
+1. Back up the current Cloudflare deployment or Git tag.
+2. Extract this ZIP over a clean project directory (recommended) or replace the 1.10.1 source.
+3. Configure REPLACE_WITH_YOUR_TWITCH_CLIENT_ID in config.js and wrangler.jsonc.
+4. Keep the existing Twitch OAuth callback URL registered exactly.
+5. Never add a Twitch Client Secret to client-side code.
+6. Run:
+     npm install
+     npm test
+     npm run build
+     npm run preview
+7. In preview, verify:
+   - NERDSPACE LABS uses Space Grotesk and body copy uses Inter.
+   - IBM Plex Mono is used for status/data labels.
+   - Twitch identity/channel/live data loads.
+   - Followed-live and followed-channel counts load.
+   - Clips load and Game History shows clip/category evidence rather than blank VOD game data.
+   - Game Radar loads live-network categories.
+   - Data Status shows twitchtracker.games independently.
+   - TwitchTracker failure does not break Twitch data.
+   - Schedule Lab still uses published schedule first and observed VOD timing second.
+8. Deploy only after preview passes:
+     npm run deploy
+
+D1 remains disabled.

@@ -1,12 +1,6 @@
 import { APP_CONFIG } from '../../config.js';
-
-export async function getTwitchTrackerSummary(login) {
-  if (!login) return null;
-  const url = new URL(APP_CONFIG.twitchTrackerUrl);
-  url.searchParams.set('channel', login);
-  try {
-    const r = await fetch(url);
-    if (!r.ok) return null;
-    return r.json();
-  } catch { return null; }
-}
+async function request(url){const r=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});if(r.status===404)return null;if(!r.ok)throw new Error(`TwitchTracker request failed (${r.status}).`);return r.json()}
+export function normalizeSummary(data){if(!data||typeof data!=='object')return null;const n=(...keys)=>{for(const k of keys){const v=Number(data[k]);if(Number.isFinite(v))return v}return null};return {...data,averageViewers:n('avg_viewers','average_viewers','averageViewers'),maxViewers:n('max_viewers','peak_viewers','maxViewers'),minutesStreamed:n('minutes_streamed','minutesStreamed'),hoursWatched:n('hours_watched','hoursWatched'),totalFollowers:n('followers_total','total_followers','totalFollowers')};}
+export async function getTwitchTrackerSummary(channel){const url=new URL(APP_CONFIG.twitchTrackerUrl);url.searchParams.set('channel',channel);return normalizeSummary(await request(url));}
+export async function getTwitchTrackerGameSummary(game){const url=new URL(APP_CONFIG.twitchTrackerGameUrl);url.searchParams.set('game',String(game));return await request(url);}
+export async function getTwitchTrackerGameSummaries(games=[],limit=12){const list=[...new Set(games.filter(Boolean).map(String))].slice(0,limit);const out=new Map();let next=0;const workers=Array.from({length:Math.min(3,list.length)},async()=>{while(next<list.length){const game=list[next++];try{out.set(game,await getTwitchTrackerGameSummary(game))}catch{out.set(game,null)}}});await Promise.all(workers);return out;}
