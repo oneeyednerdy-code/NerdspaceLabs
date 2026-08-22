@@ -1,0 +1,25 @@
+NERDSPACE LABS DASHBOARD 1.10.1 — INSTALL / UPGRADE
+
+FRESH INSTALL
+1. Extract to a clean folder.
+2. Put your Twitch Client ID in config.js and wrangler.jsonc.
+3. Register the exact preview and production OAuth callback URLs with Twitch.
+4. Run: npm install
+5. Run: npm test
+6. Run: npm run build
+7. Run: npm run preview
+8. Test Data Status. Confirm Twitch Identity, Channel, VODs, Followed Live, Followed Channels, Games and Clips report OK where your account/API permissions allow them.
+9. Test Raid Radar, Creator Match, Game Radar and Schedule Lab.
+10. Deploy with: npm run deploy
+
+UPGRADE FROM 1.10.0
+Replace the deployed project with this complete package, then repeat npm install, npm test, npm run build and preview testing. This is a cumulative package; do not copy only app.js.
+
+OAUTH
+The required baseline scope remains user:read:follows. Nerdspace does not request unrelated sensitive scopes just to inflate the amount of data collected.
+
+TWITCHTRACKER
+TwitchTracker is supplemental. If it is unavailable, Twitch-backed features continue to operate.
+
+D1
+NOT ENABLED. No D1/KV/R2 setup is required.

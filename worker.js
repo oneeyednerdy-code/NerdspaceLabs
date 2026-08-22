@@ -4,7 +4,7 @@ const HELIX_ORIGIN = 'https://api.twitch.tv';
 const PREFIX = '/api/twitch/helix';
 const ALLOWED = new Set([
   '/users','/streams','/streams/followed','/channels','/channels/followed',
-  '/games','/videos','/clips','/schedule','/teams/channel','/search/categories'
+  '/games','/videos','/clips','/schedule','/teams/channel','/search/categories','/channels/followers'
 ]);
 
 function error(message, status = 400) {

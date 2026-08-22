@@ -1,80 +1,33 @@
 import { APP_CONFIG } from '../config.js';
 import { beginLogin, consumeOAuthHash, validateToken, logout } from './auth.js';
 import { storage } from './storage.js';
-import { getUser,getChannel,getStream,getRecentVideos,getGames,getFollowedStreams,getSchedule } from './services/twitch.js';
-import { getTwitchTrackerSummary } from './services/twitchtracker.js';
+import { loadCreatorData } from './services/data-orchestrator.js';
 import { summarizeGameHistory,buildGameSignals } from './engines/game-radar.js';
 import { inferSchedule } from './engines/schedule.js';
 import { buildSignals } from './engines/signals.js';
+import { rankRaidCandidates } from './integrations/wormhole.js';
+import { scheduleProfile } from './integrations/solstice.js';
+import { creatorMatch } from './integrations/nerdsync.js';
 import { downloadDiagnostics } from './diagnostics.js';
 
-const state={user:null,channel:null,stream:null,videos:[],followedStreams:[],publishedSchedule:[],inferredSchedule:[],gameHistory:[],gameSignals:[],tracker:null,errors:[]};
-const $=s=>document.querySelector(s);
-const $$=s=>[...document.querySelectorAll(s)];
-
-function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function setStatus(text,kind=''){ const e=$('#systemStatus'); e.textContent=text; e.dataset.kind=kind; }
-function fmtHour(h){const d=new Date();d.setHours(h,0,0,0);return d.toLocaleTimeString([],{hour:'numeric'});}
-function showView(id){$$('.view').forEach(v=>v.hidden=v.id!==id);$$('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id));}
-
+const state={user:null,channel:null,stream:null,videos:[],followedStreams:[],followedChannels:[],clips:[],followerTotal:null,publishedSchedule:[],inferredSchedule:[],gameHistory:[],gameSignals:[],tracker:null,raidMatches:[],creatorMatches:[],providerStatus:{},errors:[]};
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=(v='')=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function setStatus(t,k=''){const e=$('#systemStatus');e.textContent=t;e.dataset.kind=k}
+function showView(id){$$('.view').forEach(v=>v.hidden=v.id!==id);$$('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id))}
+function observedSegments(videos=[]){return videos.slice(0,30).map(v=>{const start=new Date(v.created_at);const mins=(String(v.duration).match(/(\d+)h/)?.[1]||0)*60+(Number(String(v.duration).match(/(\d+)m/)?.[1]||0));const end=new Date(start.getTime()+Math.max(60,mins)*60000);return {startTime:start.toISOString(),endTime:end.toISOString()}})}
+function referenceStream(){if(state.stream)return state.stream;const v=state.videos[0];if(!v)return null;return {user_id:state.user.id,viewer_count:state.tracker?.avg_viewers||state.tracker?.average_viewers||Math.max(1,v.view_count||1),started_at:v.created_at,game_id:v.game_id,game_name:state.gameHistory[0]?.name||'',tags:state.channel?.tags||[],isHistoricalReference:true}}
+function providerRows(){return Object.entries(state.providerStatus).map(([k,v])=>`<article class="data-row"><div><strong>${esc(k)}</strong><small>${v.ok?'Loaded successfully':esc(v.error||'Unavailable')}</small></div><div class="confidence ${v.ok?'good':''}">${v.ok?'OK':'!'}</div></article>`).join('')}
 function render(){
-  $('#version').textContent=`ALPHA ${APP_CONFIG.version}`;
-  $('#loginView').hidden=Boolean(state.user);
-  $('#appShell').hidden=!state.user;
-  if(!state.user)return;
-  $('#avatar').src=state.user.profile_image_url||'';
-  $('#displayName').textContent=state.user.display_name;
-  $('#loginName').textContent='@'+state.user.login;
-  $('#livePill').textContent=state.stream?'LIVE':'OFFLINE';
-  $('#livePill').className='status-pill '+(state.stream?'good':'');
-  $('#channelGame').textContent=state.stream?.game_name||state.channel?.game_name||'No category';
-  $('#viewerStat').textContent=state.stream?.viewer_count ?? '—';
-  $('#vodStat').textContent=state.videos.length;
-  $('#networkStat').textContent=state.followedStreams.length;
-  $('#scheduleStat').textContent=state.publishedSchedule.length ? 'Published' : (state.inferredSchedule.length?'Observed':'Limited');
-
-  $('#signals').innerHTML=buildSignals({...state}).map(s=>`<article class="signal-card"><span>${esc(s.type)}</span><h3>${esc(s.title)}</h3><p>${esc(s.body)}</p></article>`).join('');
-
-  $('#raidList').innerHTML=state.followedStreams.slice().sort((a,b)=>a.viewer_count-b.viewer_count).slice(0,12).map(s=>`<article class="creator-card"><div><strong>${esc(s.user_name)}</strong><small>${esc(s.game_name||'No category')}</small></div><div class="metric">${s.viewer_count}<small>viewers</small></div></article>`).join('') || '<p class="empty">No followed live channels returned by Twitch.</p>';
-
-  $('#gameHistory').innerHTML=state.gameHistory.slice(0,8).map(g=>`<article class="data-row"><div><strong>${esc(g.name)}</strong><small>${g.streams} recent broadcasts</small></div><div class="metric">${g.avgVodViews}<small>avg VOD views</small></div></article>`).join('')||'<p class="empty">Not enough recent VOD game history yet.</p>';
-  $('#gameRadar').innerHTML=state.gameSignals.map(g=>`<article class="recommend-card"><span>EXPERIMENTAL • ${g.score}% SIGNAL</span><h3>${esc(g.name)}</h3><p>${g.channels} followed creators live • ${g.viewers.toLocaleString()} combined current viewers</p><small>Suggested because it appears in your live creator network but not your recent game history.</small></article>`).join('')||'<p class="empty">No adjacent game signals available right now.</p>';
-
-  $('#scheduleList').innerHTML=(state.publishedSchedule.length?state.publishedSchedule.slice(0,8).map(s=>({label:new Date(s.start_time).toLocaleString(),confidence:'CONFIRMED',detail:s.title||s.category?.name||'Scheduled stream'})):state.inferredSchedule.map(s=>({label:`${s.day} around ${fmtHour(s.hour)}`,confidence:`${s.confidence}%`,detail:`Observed in ${s.count} recent broadcasts`}))).map(x=>`<article class="data-row"><div><strong>${esc(x.label)}</strong><small>${esc(x.detail)}</small></div><div class="confidence">${esc(x.confidence)}</div></article>`).join('')||'<p class="empty">No schedule evidence available.</p>';
-
-  $('#trackerData').textContent=state.tracker ? 'Historical context available' : 'Supplemental history unavailable';
+ $('#version').textContent=`ALPHA ${APP_CONFIG.version}`;$('#loginView').hidden=Boolean(state.user);$('#appShell').hidden=!state.user;if(!state.user)return;
+ $('#avatar').src=state.user.profile_image_url||'';$('#displayName').textContent=state.user.display_name;$('#loginName').textContent='@'+state.user.login;$('#livePill').textContent=state.stream?'LIVE':'OFFLINE';$('#livePill').className='status-pill '+(state.stream?'good':'');$('#channelGame').textContent=state.stream?.game_name||state.channel?.game_name||'No category';$('#viewerStat').textContent=state.stream?.viewer_count??'—';$('#vodStat').textContent=state.videos.length;$('#networkStat').textContent=state.followedStreams.length;$('#scheduleStat').textContent=state.publishedSchedule.length?'Published':(state.inferredSchedule.length?'Observed':'Limited');
+ $('#signals').innerHTML=buildSignals({...state}).map(s=>`<article class="signal-card"><span>${esc(s.type)}</span><h3>${esc(s.title)}</h3><p>${esc(s.body)}</p></article>`).join('');
+ $('#raidList').innerHTML=state.raidMatches.slice(0,24).map(s=>`<article class="creator-card"><div><strong>${esc(s.user_name)}</strong><small>${esc(s.game_name||'No category')} • ${s.raidEvidence.sharedTags.slice(0,3).map(esc).join(', ')||'No shared tags'}</small><small>Why: audience ${s.raidEvidence.live}% • game ${s.raidEvidence.game}% • tags ${s.raidEvidence.tags??'limited'}</small></div><div class="metric">${s.raidScore}%<small>${s.viewer_count} viewers</small></div></article>`).join('')||'<p class="empty">No live raid candidates available.</p>';
+ $('#creatorMatchList').innerHTML=state.creatorMatches.slice(0,20).map(x=>`<article class="creator-card"><div><strong>${esc(x.stream.user_name)}</strong><small>${esc(x.stream.game_name||'No category')} • ${x.match.overlapMinutes}m schedule overlap</small><small>Schedule ${x.match.schedule}% • game ${x.match.games}% • tags ${x.match.tags}% • audience ${x.match.audience}%</small></div><div class="metric">${x.match.score}%<small>creator fit</small></div></article>`).join('')||'<p class="empty">No creator matches have enough evidence yet.</p>';
+ $('#gameHistory').innerHTML=state.gameHistory.slice(0,12).map(g=>`<article class="data-row"><div><strong>${esc(g.name)}</strong><small>${g.streams} recent broadcasts</small></div><div class="metric">${g.avgVodViews}<small>avg VOD views</small></div></article>`).join('')||'<p class="empty">Not enough recent VOD game history yet.</p>';
+ $('#gameRadar').innerHTML=state.gameSignals.slice(0,12).map(g=>`<article class="recommend-card"><span>EXPERIMENTAL • ${g.score}% SIGNAL</span><h3>${esc(g.name)}</h3><p>${g.channels} followed creators live • ${g.viewers.toLocaleString()} combined current viewers</p><small>Network/category evidence only; not a growth prediction.</small></article>`).join('')||'<p class="empty">No adjacent game signals available right now.</p>';
+ const sched=state.publishedSchedule.length?state.publishedSchedule.slice(0,12).map(s=>({label:new Date(s.start_time).toLocaleString(),confidence:'PUBLISHED',detail:s.title||s.category?.name||'Scheduled stream'})):state.inferredSchedule.map(s=>({label:`${s.day} around ${s.hour}:00`,confidence:`${s.confidence}%`,detail:`Observed in ${s.count} recent broadcasts`}));$('#scheduleList').innerHTML=sched.map(x=>`<article class="data-row"><div><strong>${esc(x.label)}</strong><small>${esc(x.detail)}</small></div><div class="confidence">${esc(x.confidence)}</div></article>`).join('')||'<p class="empty">No schedule evidence available.</p>';
+ $('#trackerData').textContent=state.tracker?'TwitchTracker supplemental historical context loaded.':'TwitchTracker unavailable; Twitch features remain active.';$('#providerStatus').innerHTML=providerRows();$('#followerStat').textContent=state.followerTotal??'—';$('#clipStat').textContent=state.clips.length;$('#followingStat').textContent=state.followedChannels.length;
 }
-
-async function load(){
-  setStatus('CONNECTING TO TWITCH…');
-  const valid=await validateToken();
-  if(!valid){render();setStatus('READY');return;}
-  try{
-    state.user=await getUser(valid.user_id);
-    const [channel,stream,videos,followed,published,tracker]=await Promise.all([
-      getChannel(valid.user_id),getStream(valid.user_id),getRecentVideos(valid.user_id,20),
-      getFollowedStreams(valid.user_id,100),getSchedule(valid.user_id),
-      getTwitchTrackerSummary(state.user?.login)
-    ]);
-    Object.assign(state,{channel,stream,videos,followedStreams:followed,publishedSchedule:published,tracker});
-    const games=await getGames(videos.map(v=>v.game_id));
-    state.gameHistory=summarizeGameHistory(videos,games);
-    state.gameSignals=buildGameSignals(state.gameHistory,followed);
-    state.inferredSchedule=inferSchedule(videos);
-    storage.set('last-profile',{displayName:state.user.display_name,updatedAt:Date.now()});
-    setStatus('SIGNAL LOCKED','good');
-  }catch(e){state.errors.push({time:new Date().toISOString(),message:e.message});setStatus('PARTIAL SIGNAL','warn');}
-  render();
-}
-
-$('#connectBtn').addEventListener('click',()=>{try{beginLogin()}catch(e){$('#loginError').textContent=e.message;}});
-$('#logoutBtn').addEventListener('click',()=>{logout();location.reload();});
-$('#diagnosticsBtn').addEventListener('click',()=>downloadDiagnostics(state));
-$('#clearDataBtn').addEventListener('click',()=>{storage.clearLocalData();setStatus('LOCAL DATA CLEARED','good');});
-$$('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
-
-try{consumeOAuthHash();}catch(e){state.errors.push({time:new Date().toISOString(),message:e.message});$('#loginError').textContent=e.message;}
-load();
-if ('serviceWorker' in navigator) {
-  addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
-}
+async function load(){setStatus('CONNECTING TO TWITCH…');const valid=await validateToken();if(!valid){render();setStatus('READY');return}const data=await loadCreatorData(valid.user_id);state.providerStatus=data.status;if(!data.user){setStatus('TWITCH IDENTITY FAILED','warn');render();return}Object.assign(state,data);state.inferredSchedule=inferSchedule(state.videos);state.gameHistory=summarizeGameHistory(state.videos,state.games);state.gameSignals=buildGameSignals(state.gameHistory,state.followedStreams);const profiles=new Map(state.profiles.map(p=>[p.id,p]));const ref=referenceStream();state.raidMatches=rankRaidCandidates(ref,state.followedStreams,profiles);const mine=scheduleProfile(state.publishedSchedule,observedSegments(state.videos));state.creatorMatches=state.followedStreams.slice(0,24).map(stream=>{const theirs=scheduleProfile(state.schedules.get(stream.user_id)||[],[]);return {stream,match:creatorMatch(ref||{},stream,mine,theirs)}}).filter(x=>x.match.score>0).sort((a,b)=>b.match.score-a.match.score);storage.set('last-profile',{displayName:state.user.display_name,updatedAt:Date.now()});const failures=Object.values(state.providerStatus).filter(x=>!x.ok).length;setStatus(failures?'PARTIAL SIGNAL':'SIGNAL LOCKED',failures?'warn':'good');render()}
+$('#connectBtn').addEventListener('click',()=>{try{beginLogin()}catch(e){$('#loginError').textContent=e.message}});$('#logoutBtn').addEventListener('click',()=>{logout();location.reload()});$('#diagnosticsBtn').addEventListener('click',()=>downloadDiagnostics(state));$('#clearDataBtn').addEventListener('click',()=>{storage.clearLocalData();setStatus('LOCAL DATA CLEARED','good')});$$('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));try{consumeOAuthHash()}catch(e){state.errors.push({time:new Date().toISOString(),message:e.message});$('#loginError').textContent=e.message}load();if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));

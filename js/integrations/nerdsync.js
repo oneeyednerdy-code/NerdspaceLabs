@@ -1,0 +1,4 @@
+import { tagSimilarity } from './wormhole.js';
+import { scheduleCompatibility } from './solstice.js';
+function closeness(a,b){if(!a||!b)return 50;return Math.max(0,100-Math.round(Math.abs(a-b)/Math.max(a,b)*100))}
+export function creatorMatch(me,candidate,mySchedule,candidateSchedule){const tags=tagSimilarity(me.tags,candidate.tags);const schedule=scheduleCompatibility(mySchedule,candidateSchedule);const audience=closeness(me.viewer_count,candidate.viewer_count);const game=me.game_id&&me.game_id===candidate.game_id?100:0;const score=Math.round(schedule.score*.30+game*.25+(tags.score??50)*.20+audience*.15+50*.10);return {score,schedule: schedule.score,games:game,tags:tags.score??50,audience,patterns:50,sharedTags:tags.shared,overlapMinutes:schedule.overlapMinutes,sharedDays:schedule.sharedDays};}

@@ -1,0 +1,37 @@
+NERDSPACE LABS DASHBOARD — ALPHA 1.10.1
+INTEGRATED PRE-D1 DATA + ENGINE PATCH
+A project by OneEyedNerdy
+
+FIXED
+- Replaced the single Promise.all data load with independent provider loading.
+- Expanded VOD loading from 20 to up to 100 recent archives with pagination.
+- Expanded followed-live loading with pagination.
+- Added paged followed-channel loading.
+- Added broadcaster clip loading.
+- Added follower-total loading when Twitch permits it.
+- Added batched user/profile enrichment for live network creators.
+- Added bounded/concurrent schedule enrichment for the first 24 live candidates.
+- Added Data Status view so partial API failures are visible instead of silently breaking the dashboard.
+
+WORMHOLE INTEGRATION
+- Raid Radar now ranks candidates instead of merely sorting by viewer count.
+- Audience proximity, live duration, current game and shared tags are scored independently.
+- Match evidence is shown on every raid result.
+
+NERDSYNC INTEGRATION
+- Added native Creator Match view.
+- Collaboration scoring is intentionally different from raid scoring.
+- Creator Match exposes schedule, game, tag and audience components.
+
+SOLSTICE INTEGRATION
+- Published Twitch schedules remain preferred evidence.
+- Recent VOD timing remains the fallback for the logged-in creator.
+- Creator Match uses schedule overlap from public schedules for bounded live candidates.
+
+TWITCHTRACKER
+- Remains supplemental and failure-isolated.
+- This build uses the supported channel-summary gateway already present in the source projects. It does not invent undocumented TwitchTracker endpoints.
+
+STORAGE
+- D1 remains disabled.
+- No new server-side creator history.

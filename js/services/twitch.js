@@ -13,46 +13,31 @@ export async function helix(path, params = {}) {
   if (!r.ok) {
     let message = `Twitch request failed (${r.status}).`;
     try { const b = await r.json(); message = b.message || b.error || message; } catch {}
-    throw new Error(message);
+    const error = new Error(message); error.status=r.status; throw error;
   }
   return r.json();
 }
 
-export async function getUser(id) {
-  const body = await helix('/users', id ? {id} : {});
-  return body.data?.[0] || null;
+export async function paginate(path, params={}, {maxPages=10,maxItems=1000,dataPath='data'}={}) {
+  const items=[]; let after=''; let pages=0; let lastBody=null;
+  do {
+    const body=await helix(path,{...params,after:after||undefined}); lastBody=body; pages++;
+    const page=dataPath==='segments' ? (body.data?.segments||[]) : (body.data||[]);
+    items.push(...page);
+    after=body.pagination?.cursor||body.data?.pagination?.cursor||'';
+  } while(after && pages<maxPages && items.length<maxItems);
+  return {items:items.slice(0,maxItems),pages,lastBody,truncated:Boolean(after)};
 }
 
-export async function getChannel(id) {
-  const body = await helix('/channels', {broadcaster_id:id});
-  return body.data?.[0] || null;
-}
-
-export async function getStream(id) {
-  const body = await helix('/streams', {user_id:id});
-  return body.data?.[0] || null;
-}
-
-export async function getRecentVideos(id, first=20) {
-  const body = await helix('/videos', {user_id:id, type:'archive', first:String(first)});
-  return body.data || [];
-}
-
-export async function getGames(ids) {
-  const unique = [...new Set(ids.filter(Boolean))].slice(0,100);
-  if (!unique.length) return [];
-  const body = await helix('/games', {id:unique});
-  return body.data || [];
-}
-
-export async function getFollowedStreams(userId, first=100) {
-  const body = await helix('/streams/followed', {user_id:userId, first:String(first)});
-  return body.data || [];
-}
-
-export async function getSchedule(id) {
-  try {
-    const body = await helix('/schedule', {broadcaster_id:id, first:'25'});
-    return body.data?.segments || [];
-  } catch { return []; }
-}
+export async function getUser(id) { const b=await helix('/users',id?{id}:{}); return b.data?.[0]||null; }
+export async function getUsers(ids=[]) { const u=[...new Set(ids.filter(Boolean))]; if(!u.length)return[]; const out=[]; for(let i=0;i<u.length;i+=100){const b=await helix('/users',{id:u.slice(i,i+100)});out.push(...(b.data||[]));} return out; }
+export async function getChannel(id) { const b=await helix('/channels',{broadcaster_id:id});return b.data?.[0]||null; }
+export async function getStream(id) { const b=await helix('/streams',{user_id:id});return b.data?.[0]||null; }
+export async function getRecentVideos(id,max=100) { return (await paginate('/videos',{user_id:id,type:'archive',first:'100'},{maxPages:Math.ceil(max/100),maxItems:max})).items; }
+export async function getGames(ids) { const u=[...new Set(ids.filter(Boolean))];const out=[];for(let i=0;i<u.length;i+=100){const b=await helix('/games',{id:u.slice(i,i+100)});out.push(...(b.data||[]));}return out; }
+export async function getFollowedStreams(userId,max=500) { return (await paginate('/streams/followed',{user_id:userId,first:'100'},{maxPages:Math.ceil(max/100),maxItems:max})).items; }
+export async function getFollowedChannels(userId,max=1000) { return (await paginate('/channels/followed',{user_id:userId,first:'100'},{maxPages:Math.ceil(max/100),maxItems:max})).items; }
+export async function getClips(id,max=100) { return (await paginate('/clips',{broadcaster_id:id,first:'100'},{maxPages:Math.ceil(max/100),maxItems:max})).items; }
+export async function getFollowerTotal(id) { try { const b=await helix('/channels/followers',{broadcaster_id:id,first:'1'}); return Number(b.total||0); } catch { return null; } }
+export async function getSchedule(id,max=50) { try { return (await paginate('/schedule',{broadcaster_id:id,first:'25'},{maxPages:2,maxItems:max,dataPath:'segments'})).items; } catch { return []; } }
+export async function getSchedules(ids=[],limit=24) { const out=new Map(); const list=[...new Set(ids.filter(Boolean))].slice(0,limit); let cursor=0; const workers=Array.from({length:Math.min(4,list.length)},async()=>{while(cursor<list.length){const id=list[cursor++];out.set(id,await getSchedule(id,25));}}); await Promise.all(workers); return out; }

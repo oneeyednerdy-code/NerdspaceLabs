@@ -24,3 +24,28 @@ test('schedule inference requires repeated evidence',()=>{
   const out=inferSchedule(videos);
   assert.equal(out.length,1); assert.ok(out[0].confidence>=35);
 });
+import { rankRaidCandidates } from '../js/integrations/wormhole.js';
+import { scheduleCompatibility } from '../js/integrations/solstice.js';
+import { creatorMatch } from '../js/integrations/nerdsync.js';
+
+test('Wormhole raid integration favors similar audience and same game',()=>{
+ const me={user_id:'1',viewer_count:20,started_at:new Date(Date.now()-3600000).toISOString(),game_id:'g',tags:['English','MMO']};
+ const ranked=rankRaidCandidates(me,[
+  {user_id:'2',user_name:'Near',viewer_count:24,started_at:new Date(Date.now()-3700000).toISOString(),game_id:'g',tags:['English','MMO']},
+  {user_id:'3',user_name:'Far',viewer_count:200,started_at:new Date(Date.now()-100000).toISOString(),game_id:'x',tags:['Speedrun']}
+ ]);
+ assert.equal(ranked[0].user_name,'Near');
+ assert.ok(ranked[0].raidScore>ranked[1].raidScore);
+});
+
+test('Solstice integration detects direct schedule overlap',()=>{
+ const a={segments:[{startTime:'2026-08-24T17:00:00Z',endTime:'2026-08-24T20:00:00Z'}]};
+ const b={segments:[{startTime:'2026-08-24T18:00:00Z',endTime:'2026-08-24T21:00:00Z'}]};
+ const r=scheduleCompatibility(a,b); assert.equal(r.overlapMinutes,120); assert.ok(r.score>0);
+});
+
+test('NerdSync integration returns explainable component scores',()=>{
+ const me={viewer_count:20,game_id:'g',tags:['English','MMO']}, other={viewer_count:25,game_id:'g',tags:['English','MMO']};
+ const sched={segments:[{startTime:'2026-08-24T17:00:00Z',endTime:'2026-08-24T20:00:00Z'}]};
+ const r=creatorMatch(me,other,sched,sched); assert.ok(r.score>=80); assert.equal(r.games,100); assert.ok(r.schedule>=60);
+});
