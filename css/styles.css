@@ -65,3 +65,15 @@ body{background:var(--bg)}.sidebar{background:#09070e;border-right:1px solid var
 .discovery-feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;max-height:62vh;overflow:auto}
 details.compact-section{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin:10px 0}details.compact-section summary{cursor:pointer;padding:12px 14px;font-weight:700}details.compact-section>div{padding:0 14px 14px}
 @media(max-width:900px){.schedule-match-layout{grid-template-columns:1fr}.compact-results,.schedule-match-results,.network-compact-grid,.discovery-feed{max-height:none;overflow:visible}}
+
+/* 1.21.2 Wormhole unified filters */
+.filters-panel{padding:0!important;overflow:hidden;border:1px solid var(--line);background:var(--panel);border-radius:10px;margin:12px 0 16px}
+.filters-panel__header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.filters-panel__title{margin:2px 0 0;font-size:16px}.section-eyebrow{margin:0;color:var(--purple2);font:700 9px var(--mono);letter-spacing:.13em;text-transform:uppercase}
+.filters-panel__content{padding:12px 16px}.filters-panel__content[hidden]{display:none}
+.filters-panel .tool-filter,.filters-panel .compact-controlbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px;margin:0}
+.filters-panel .tool-filter label{display:grid;gap:5px;color:var(--muted);font:700 9px var(--mono);letter-spacing:.06em}
+.filters-panel input,.filters-panel select{min-height:40px;background:#09070e;color:var(--text);border:1px solid var(--border);border-radius:7px;padding:0 10px}
+.filter-toggle{min-height:34px;white-space:nowrap}.filter-active-summary{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 12px}.filter-chip{border:1px solid #4a3b61;border-radius:999px;background:rgba(145,71,255,.09);color:#d9d0e8;padding:5px 9px;font-size:10px}
+@media(max-width:700px){.filters-panel__header{padding:12px}.filters-panel__content{padding:10px 12px}.filters-panel .tool-filter,.filters-panel .compact-controlbar{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.filters-panel .tool-filter,.filters-panel .compact-controlbar{grid-template-columns:1fr}.filters-panel__header{align-items:flex-start}}

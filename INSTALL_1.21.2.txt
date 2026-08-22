@@ -1,0 +1,12 @@
+NERDSPACE LABS 1.21.2
+Cumulative over 1.21.1.
+
+npm install
+npm test
+npm run build
+npm run preview
+
+Verify Creator Discovery, Collaborations, Schedule Match, Network Explorer and Game Radar all use the same Wormhole-style filter panel. Test Show/Hide Filters, active chips, existing filtering, mobile widths, Twitch images, discovery feed and Data Inspector.
+
+Deploy: npm run deploy
+No D1 required.

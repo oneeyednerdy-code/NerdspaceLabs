@@ -82,3 +82,5 @@ test('image proxy helper keeps Twitch images same-origin', async()=>{
 test('pagination bounds result pages',async()=>{const {paginate}=await import('../js/engines/pagination.js');const p=paginate(Array.from({length:25},(_,i)=>i),2,12);assert.equal(p.items.length,12);assert.equal(p.pages,3)});
 
 test('genre taxonomy includes MMO and normalizes IGDB massively multiplayer',async()=>{const {CREATOR_GENRES,normalizeGenre}=await import('../js/engines/genre-taxonomy.js');assert.ok(CREATOR_GENRES.includes('MMO'));assert.equal(normalizeGenre('Massively Multiplayer'),'MMO')});
+
+test('all primary filter surfaces use unified Wormhole filter panels',async()=>{const fs=await import('node:fs/promises');const html=await fs.readFile(new URL('../index.html',import.meta.url),'utf8');for(const id of ['raid','match','schedule','network','games'])assert.ok(html.includes(`data-unified-filter="${id}"`),id+' missing unified filter')});

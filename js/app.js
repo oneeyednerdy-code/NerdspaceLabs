@@ -108,6 +108,27 @@ function renderCompactNetwork(){
   host.innerHTML=rows.slice(0,60).map(c=>creatorCard({stream:c,score:0,evidence:{}},'network')).join('')||'<div class="empty">No creators match these network filters.</div>';bindCrossToolActions();bindCreatorDetails();bindImageFallbacks();
 }
 
+function initUnifiedFilters(){
+  $$('.nerdspace-filter-panel').forEach(panel=>{
+    const btn=panel.querySelector('.filter-toggle'),content=panel.querySelector('.filters-panel__content');
+    if(!btn||!content)return;
+    btn.onclick=()=>{content.hidden=!content.hidden;btn.textContent=content.hidden?'Show filters':'Hide filters';btn.setAttribute('aria-expanded',String(!content.hidden))};
+  });
+}
+function renderUnifiedFilterChips(){
+  $$('.nerdspace-filter-panel').forEach(panel=>{
+    panel.querySelector('.filter-active-summary')?.remove();
+    const vals=[...panel.querySelectorAll('input,select')].flatMap(el=>{
+      if((el.type==='checkbox'||el.type==='radio')&&!el.checked)return[];
+      const v=String(el.value||'').trim();if(!v||v==='all'||v==='0')return[];
+      return [v];
+    }).slice(0,8);
+    if(!vals.length)return;
+    const row=document.createElement('div');row.className='filter-active-summary';row.innerHTML=vals.map(v=>`<span class="filter-chip">${esc(v)}</span>`).join('');panel.appendChild(row);
+  });
+}
+function renderFilteredGames(){const q=($('#gameFilterSearch')?.value||'').toLowerCase(),g=($('#gameFilterGenre')?.value||'').toLowerCase();['#gameHistory','#gameRadar'].forEach(sel=>{$$(sel+' > *').forEach(card=>{const t=card.textContent.toLowerCase();card.hidden=Boolean((q&&!t.includes(q))||(g&&!t.includes(g)))})})}
+
 function render(){
  $('#version').textContent=`ALPHA ${APP_CONFIG.version}`;$('#loginView').hidden=Boolean(state.user);$('#appShell').hidden=!state.user;if(!state.user)return;
  $('#avatar').src=proxiedImage(state.user.profile_image_url||'');$('#displayName').textContent=state.user.display_name;$('#loginName').textContent='@'+state.user.login;$('#livePill').textContent=state.stream?'LIVE':'OFFLINE';$('#livePill').className='status-pill '+(state.stream?'good':'');$('#channelGame').textContent=state.stream?.game_name||state.channel?.game_name||'No category';$('#viewerStat').textContent=state.stream?.viewer_count??'—';$('#vodStat').textContent=state.videos.length;$('#networkStat').textContent=state.followedStreams.length;$('#scheduleStat').textContent=state.publishedSchedule.length?'Published':(state.inferredSchedule.length?'Observed':'Limited');
@@ -116,7 +137,7 @@ function render(){
  $('#gameRadar').innerHTML=state.gameSignals.slice(0,12).map(g=>`<article class="recommend-card"><span>EXPERIMENTAL • ${g.score}% SIGNAL</span><h3>${esc(g.name)}</h3><p>${g.channels} followed creators live • ${g.viewers.toLocaleString()} combined current viewers</p><button class="mini-btn" data-game-to-raid="${esc(g.name)}">Find creators</button></article>`).join('')||'<p class="empty">No adjacent game signals available right now.</p>';
  const sched=state.publishedSchedule.length?state.publishedSchedule.slice(0,12).map(s=>({label:new Date(s.start_time).toLocaleString(),confidence:'PUBLISHED',detail:s.title||s.category?.name||'Scheduled stream'})):state.inferredSchedule.map(s=>({label:`${s.day} around ${s.hour}:00`,confidence:`${s.confidence}%`,detail:`Observed in ${s.count} recent broadcasts`}));$('#scheduleList').innerHTML=sched.map(x=>`<article class="data-row"><div><strong>${esc(x.label)}</strong><small>${esc(x.detail)}</small></div><div class="confidence">${esc(x.confidence)}</div></article>`).join('')||'<p class="empty">No schedule evidence available.</p>';
  $('#trackerData').textContent=state.tracker?'TwitchTracker supplemental historical context loaded.':'TwitchTracker unavailable; Twitch features remain active.';$('#providerStatus').innerHTML=providerRows();$('#followerStat').textContent=state.followerTotal??'—';$('#clipStat').textContent=state.clips.length;$('#followingStat').textContent=state.followedChannels.length;
- renderTools();renderFollowerScheduleMatches();renderCompactNetwork();if($('#resultCount'))$('#resultCount').textContent=state.raidMatches?.length||0;renderNetwork();renderScheduleMatrix();renderCommonWindows();renderSavedCreators();bindImageFallbacks();$$('[data-game-to-raid]').forEach(b=>b.onclick=()=>{showView('raid');$('#raidGame').value=b.dataset.gameToRaid;renderTools()});
+ renderTools();renderFollowerScheduleMatches();renderCompactNetwork();renderUnifiedFilterChips();renderFilteredGames();if($('#resultCount'))$('#resultCount').textContent=state.raidMatches?.length||0;renderNetwork();renderScheduleMatrix();renderCommonWindows();renderSavedCreators();bindImageFallbacks();$$('[data-game-to-raid]').forEach(b=>b.onclick=()=>{showView('raid');$('#raidGame').value=b.dataset.gameToRaid;renderTools()});
 }
 async function creatorSearch(q){
  const box=$('#creatorSearchResults');box.innerHTML='<p class="empty">Searching Twitch…</p>';
@@ -133,7 +154,7 @@ $('#connectBtn').addEventListener('click',()=>{try{beginLogin()}catch(e){$('#log
 $('#raidReset').onclick=()=>{['raidSearch','raidMin','raidMax','raidTags'].forEach(id=>$('#'+id).value='');$('#raidGame').value='';$('#raidGenre').value='';$('#raidLanguage').value='';renderTools()};
 $('#matchReset').onclick=()=>{['matchSearch','matchMin','matchMax','matchTags'].forEach(id=>$('#'+id).value='');$('#matchGame').value='';$('#matchGenre').value='';$('#matchLanguage').value='';$('#matchOverlap').value='0';renderTools()};
 $('#findWindowBtn')?.addEventListener('click',renderCommonWindows);$('#windowMin')?.addEventListener('change',renderCommonWindows);$('#clearListsBtn')?.addEventListener('click',()=>{clearLists();renderSavedCreators()});
-renderWorkspaceControls();
+initUnifiedFilters();renderWorkspaceControls();
 $$('[data-source]').forEach(b=>b.onclick=()=>{$$('[data-source]').forEach(x=>x.classList.remove('active'));b.classList.add('active');discoverySource=b.dataset.source;renderTools();renderCompactNetwork()});
 ['scheduleFollowerSearch','scheduleMinOverlap','scheduleDay','scheduleMatchGenre','scheduleLiveOnly','scheduleSort'].forEach(id=>$('#'+id)?.addEventListener(id==='scheduleFollowerSearch'?'input':'change',renderFollowerScheduleMatches));
 ['networkSearch','networkRelation','networkGenre','networkLive'].forEach(id=>$('#'+id)?.addEventListener(id==='networkSearch'?'input':'change',renderCompactNetwork));
@@ -141,6 +162,7 @@ $$('[data-goal]').forEach(b=>b.onclick=()=>{$$('[data-goal]').forEach(x=>x.class
 $('#resultSort')?.addEventListener('change',e=>{workspace.sort=e.target.value;saveWorkspace({sort:workspace.sort});renderTools()});
 $('#pageSize')?.addEventListener('change',e=>{workspace.pageSize=Number(e.target.value);saveWorkspace({pageSize:workspace.pageSize});renderTools()});
 $('#savePreset')?.addEventListener('click',()=>{const name=prompt('Preset name');if(!name)return;const next=savePreset(name,filtersFor('raid'),workspace.weights);workspace.presets=next.presets;renderPresets()});
+$$('.nerdspace-filter-panel').forEach(p=>{p.addEventListener('change',renderUnifiedFilterChips);p.addEventListener('input',renderUnifiedFilterChips)});$('#gameFilterSearch')?.addEventListener('input',renderFilteredGames);$('#gameFilterGenre')?.addEventListener('change',renderFilteredGames);
 $('#drawerClose')?.addEventListener('click',closeCreatorDrawer);$('#drawerBackdrop')?.addEventListener('click',closeCreatorDrawer);
 $('#creatorSearchForm').addEventListener('submit',e=>{e.preventDefault();creatorSearch($('#creatorSearchInput').value)});
 try{consumeOAuthHash()}catch(e){state.errors.push({time:new Date().toISOString(),message:e.message});$('#loginError').textContent=e.message}load();if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));

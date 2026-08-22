@@ -1,0 +1,9 @@
+NERDSPACE LABS 1.21.2 — WORMHOLE UNIFIED FILTER SYSTEM
+
+- Matched Wormhole's compact filter-panel design across Nerdspace.
+- Unified header pattern: control eyebrow, "Choose who appears..." title, Hide/Show Filters.
+- Applied to Creator Discovery/Raid, Creator Match, Schedule Match, Network Explorer and Game Radar.
+- Added active-filter chips and responsive compact control grids.
+- Added Game Radar search + genre filtering.
+- Existing Nerdspace filter logic, discovery feed, MMO taxonomy, schedule matching and local presets retained.
+- No D1/KV/R2 required.
