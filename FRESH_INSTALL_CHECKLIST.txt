@@ -1,0 +1,17 @@
+[ ] Twitch Client ID configured
+[ ] OAuth callbacks registered exactly
+[ ] npm install succeeds
+[ ] npm test passes
+[ ] npm run build passes
+[ ] npm run preview tested
+[ ] login/logout works
+[ ] Twitch API errors handled
+[ ] TwitchTracker outage handled
+[ ] mobile tested
+[ ] accessibility tested
+[ ] PWA/offline tested
+[ ] social local-first workflow tested
+[ ] diagnostics sanitized
+[ ] no client secret exposed
+[ ] rollback deployment retained
+[ ] D1 remains disabled

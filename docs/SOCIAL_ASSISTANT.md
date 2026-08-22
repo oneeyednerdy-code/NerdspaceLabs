@@ -1,0 +1,2 @@
+# Social Assistant
+Creator-controlled and local-first. Nerdspace can prepare structure, templates, character counts, links and export/copy workflows. It does not impersonate the creator, auto-reply, mass-DM or engagement-farm. Review/approval stays with the creator. Platform limits are defaults and should be revalidated before public release because platforms can change them.

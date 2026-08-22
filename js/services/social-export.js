@@ -1,0 +1,2 @@
+export async function copyPost(text){await navigator.clipboard.writeText(text);return true}
+export function downloadPost(text,name='nerdspace-social-post.txt'){const b=new Blob([text],{type:'text/plain'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}

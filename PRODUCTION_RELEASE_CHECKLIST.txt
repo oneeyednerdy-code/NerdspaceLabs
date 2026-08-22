@@ -1,0 +1,11 @@
+NERDSPACE 1.0 PRE-D1 PRODUCTION GATE
+- All Public Alpha release gates pass.
+- Local Mode works with no D1/KV/R2 binding.
+- Privacy wording matches runtime behavior.
+- Core dashboard remains useful when TwitchTracker is unavailable.
+- Recommendations expose evidence and avoid growth guarantees.
+- Published schedule outranks inferred schedule.
+- Diagnostics are sanitized.
+- Rollback artifact and version tag exist.
+- Cloudflare preview deployment is tested before production promotion.
+- D1 remains reserved for the opt-in 2.0 persistence track.

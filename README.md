@@ -1,4 +1,4 @@
-# Nerdspace Labs Dashboard — Alpha 0.1.0
+# Nerdspace Labs Dashboard — Alpha 1.10.0
 
 A Twitch creator command center by OneEyedNerdy.
 

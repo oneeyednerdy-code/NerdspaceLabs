@@ -1,0 +1,9 @@
+{
+  "product": "Nerdspace Labs Dashboard",
+  "version": "1.10.0",
+  "project_by": "OneEyedNerdy",
+  "package_type": "cumulative fresh install",
+  "history": "0.1.0\u20131.10.0",
+  "requires_prior_patches": false,
+  "d1_enabled": false
+}

@@ -1,0 +1,57 @@
+NERDSPACE LABS DASHBOARD — MASSIVE PRE-D1 FRESH INSTALL 1.10.0
+A project by OneEyedNerdy
+
+THIS IS CUMULATIVE. You do not install 0.1.0 through 1.9.0 first.
+
+REQUIREMENTS
+Node.js/npm, Git recommended, Cloudflare account, Twitch Developer app and Twitch Client ID.
+D1/KV/R2 are NOT required.
+
+TWITCH
+1. Register the exact preview and production OAuth callback URLs in the Twitch Developer Console.
+2. Replace REPLACE_WITH_YOUR_TWITCH_CLIENT_ID in config.js and wrangler.jsonc.
+3. NEVER put a Twitch Client Secret in browser code, GitHub, config.js or HTML.
+
+INSTALL
+1. Extract this ZIP to a clean project folder.
+2. Run: npm install
+3. Run: npm test
+4. Run: npm run build
+5. Run: npm run preview
+6. Test locally/preview before production.
+7. Run: npm run deploy
+
+TEST BEFORE PRODUCTION
+- Twitch connect/callback/logout
+- navigation and core dashboard views
+- Twitch API failure/rate-limit behavior
+- TwitchTracker unavailable behavior
+- sanitized diagnostics
+- mobile widths 360/390/412px
+- keyboard navigation and 200% zoom
+- PWA registration/install/offline shell
+- stale/offline data labeling
+- local Social Assistant/planner/export workflow
+- no OAuth token in diagnostics
+- no Client Secret in delivered assets
+
+STORAGE
+OAuth token/state: sessionStorage.
+Preferences, applicable local cache, creator notes and social plans/templates: localStorage.
+Persistent Nerdspace server history: NONE.
+D1: DISABLED.
+
+CLOUDFLARE FLOW
+Local -> Preview/Staging -> Production.
+Register the exact Twitch callback for every hostname used.
+
+ROLLBACK
+Keep this ZIP, Git tag/commit and known-good Cloudflare deployment. If a future update breaks auth,
+routing or core navigation, restore the known-good deployment.
+
+D1 BOUNDARY
+D1 begins in the future persistence branch only after opt-in consent, retention, deletion/export,
+migration/rollback and separate preview/production database plans are ready. Local Mode remains first-class.
+
+BRANDING
+NERDSPACE LABS / DASHBOARD. Text mark only. Wormhole-family black/violet style.

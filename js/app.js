@@ -75,3 +75,6 @@ $$('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.v
 
 try{consumeOAuthHash();}catch(e){state.errors.push({time:new Date().toISOString(),message:e.message});$('#loginError').textContent=e.message;}
 load();
+if ('serviceWorker' in navigator) {
+  addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}

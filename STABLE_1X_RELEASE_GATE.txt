@@ -1,0 +1,11 @@
+NERDSPACE 1.10 PRE-D1
+- Mobile dashboard usable at 360px+
+- PWA install/offline shell tested
+- Offline/stale data explicitly labeled
+- Social Assistant remains review-first
+- Social templates/plans remain local
+- Accessibility gate passes
+- Performance/build tests pass
+- No D1/KV/R2 required
+- OAuth tokens never enter diagnostics/social exports
+- Previous production deployment retained for rollback

@@ -1,0 +1,1 @@
+export function streamMode(state){if(state.stream)return {mode:'live',headline:"YOU'RE LIVE",actions:['Raid Radar','Network','Debrief later']};if(state.videos?.length)return {mode:'post',headline:'POST-STREAM',actions:['Debrief','Review Content','Social Assistant']};return {mode:'pre',headline:'PRE-STREAM',actions:['Schedule','Game Radar','Creator Match']};}

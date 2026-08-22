@@ -6,3 +6,23 @@
 @media(max-width:900px){.shell{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid var(--line);padding:10px;overflow:auto}.sidebar nav{display:flex}.sidebar nav button{white-space:nowrap}.project-note{display:none}.workspace{padding:20px}.stat-grid{grid-template-columns:repeat(2,1fr)}.two-col,.signal-grid,.principles{grid-template-columns:1fr}.page-head{align-items:start;flex-direction:column}.current-category{text-align:left}.topbar{padding:0 16px}.brand b{font-size:13px}.top-actions .mono{display:none}}
 /* Nerdspace Labs text-mark branding: no standalone logo glyph. */
 .brand-mark{display:none!important}
+
+/* 1.x mobile foundation */
+.mobile-nav{display:none}
+@media(max-width:720px){
+ body{padding-bottom:68px}
+ .topbar{height:62px}
+ .workspace{padding:16px 14px 72px}
+ .sidebar{display:none}
+ .shell{display:block}
+ .mobile-nav{position:fixed;display:grid;grid-template-columns:repeat(4,1fr);left:0;right:0;bottom:0;z-index:20;background:rgba(5,3,9,.96);border-top:1px solid var(--line);backdrop-filter:blur(14px);padding:max(7px,env(safe-area-inset-bottom)) 8px 7px}
+ .mobile-nav button{min-height:48px;border:0;background:transparent;color:var(--muted);font:600 10px "IBM Plex Mono";letter-spacing:.04em}
+ .mobile-nav button.active{color:var(--bright)}
+ .stat-grid{grid-template-columns:1fr 1fr}
+ .profilebar{position:sticky;top:62px;background:#000;z-index:3;padding:12px 0}
+}
+@media(max-width:390px){.stat-grid{grid-template-columns:1fr}.hero h1{font-size:48px}}
+
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+:focus-visible{outline:3px solid var(--bright);outline-offset:3px}
+[data-contrast="high"]{--muted:#D2CCE2;--line:#7B6A99}

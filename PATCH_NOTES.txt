@@ -1,21 +1,16 @@
 NERDSPACE LABS DASHBOARD
-VERSION 0.6.0 — CHANNEL INTELLIGENCE
+VERSION 1.10.0 — STABLE 1.X PRE-D1
 A project by OneEyedNerdy
 
-PURPOSE
-Objective Channel Audit and consistency analysis.
+Final stable mobile/social local-first branch before optional D1 persistence.
 
-BRANDING
-- Text mark only: NERDSPACE LABS / DASHBOARD.
-- No standalone logo glyph.
-- Space Grotesk headings/brand, Inter body copy, IBM Plex Mono status/data labels.
-- Black + violet Wormhole-family visual language.
+1.X PRINCIPLES
+- Text-mark-only Nerdspace Labs branding.
+- Wormhole-family black/violet design system.
+- Mobile is the same product, not a separate paid app.
+- Social assistance is creator-controlled and review-first.
+- No auto-replies, mass DMs or engagement farming.
+- D1 remains disabled.
+- Local Mode remains first-class.
 
-STORAGE
-- D1: DISABLED.
-- OAuth token: sessionStorage.
-- Preferences/lightweight local cache: localStorage.
-- No persistent server-side creator profile.
-
-RELEASE POSITION
-This is a standalone deployment snapshot in the pre-D1 roadmap.
+See DEPLOYMENT_INSTRUCTIONS.txt and README.md.

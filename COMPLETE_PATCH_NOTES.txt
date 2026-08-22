@@ -1,0 +1,24 @@
+NERDSPACE LABS DASHBOARD — COMPLETE PRE-D1 CHANGELOG
+0.1.0 Foundation — Cloudflare/Twitch foundation, local-first storage, diagnostics.
+0.2.0 Unified Tools — shared Creator Passport and ecosystem integration.
+0.3.0 Intelligence — transparent match/signal/category engines.
+0.4.0 Analytics & Experiments — comparisons and local experiments.
+0.5.0 Creator Operations — pre/live/post-stream workflows.
+0.6.0 Channel Intelligence — objective audit and consistency analysis.
+0.7.0 Games & Content — expanded Game Radar and Content Radar direction.
+0.8.0 Network Intelligence — raid/collab/network intelligence and local notes.
+0.9.0 Public Alpha Hardening — accessibility/security/performance release gates.
+0.10.0 D1 Readiness — database design only; D1 NOT enabled.
+1.0.0 Stable Pre-D1 — stable local-first milestone.
+1.1.0 Mobile Foundation — responsive mobile navigation/layout.
+1.2.0 PWA Foundation — manifest/service worker/offline shell.
+1.3.0 Mobile Creator Operations — mobile stream-state workflow.
+1.4.0 Social Assistant — creator-controlled local templates/character counts.
+1.5.0 Social Planner — local social task planning.
+1.6.0 Social Export — review-first copy/download helpers.
+1.7.0 Creator Workflow — Plan → Stream → Connect → Review → Create → Share → Learn.
+1.8.0 Accessibility — focus/reduced-motion/contrast/accessibility gates.
+1.9.0 Performance — performance budget and optimization guidance.
+1.10.0 Stable 1.x Pre-D1 — final cumulative checkpoint before persistence.
+
+This ZIP installs the final cumulative state directly. Prior patch ZIPs are not required.

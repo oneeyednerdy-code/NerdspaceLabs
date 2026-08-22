@@ -1,0 +1,9 @@
+{
+  "name": "Nerdspace Labs Dashboard",
+  "short_name": "Nerdspace",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "description": "Local-first Twitch creator command center by OneEyedNerdy."
+}

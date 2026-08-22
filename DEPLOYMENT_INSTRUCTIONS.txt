@@ -1,0 +1,38 @@
+NERDSPACE LABS DASHBOARD 1.10.0 — Stable 1.x Pre-D1
+DETAILED CLOUDFLARE DEPLOYMENT
+
+A. TWITCH
+1. Create/reuse a Twitch developer app.
+2. Add exact preview and production callback URLs.
+3. Replace REPLACE_WITH_YOUR_TWITCH_CLIENT_ID in config.js and wrangler.jsonc.
+4. Never put a Twitch Client Secret in client JavaScript.
+
+B. INSTALL / VERIFY
+  npm install
+  npm test
+  npm run build
+
+C. LOCAL CLOUDFLARE TEST
+  npm run preview
+Test login/logout, navigation, API failures, diagnostics and mobile widths 360/390/412px.
+
+D. PWA TESTING
+- Install from a supported browser; test reload/offline shell and confirm API data is never silently presented as live when offline.
+
+E. SOCIAL TESTING
+- Test templates, character count, local planner and export/copy as applicable. Review content before publishing; this build does not assume automatic posting.
+
+F. PREVIEW/STAGING
+Deploy to a non-production Cloudflare hostname first. Register its Twitch callback URL and repeat the tests.
+
+G. PRODUCTION
+  npm run deploy
+
+H. ROLLBACK
+Keep the previous ZIP/tag and known-good Cloudflare deployment. Roll back authentication/routing regressions instead of stacking emergency patches.
+
+I. STORAGE
+sessionStorage: OAuth token/state
+localStorage: preferences, templates/plans and lightweight local state
+D1: NOT ENABLED
+KV/R2: NOT REQUIRED

@@ -1,0 +1,2 @@
+# Performance budget
+Targets before production: keep initial app JS/CSS intentionally small; avoid duplicate Twitch requests; lazy-load non-critical modules; never cache `/api/` responses in the service worker; use stale labels for cached UI; test slow network and low-memory mobile devices. Measure actual bundles during `npm run build` rather than claiming a fixed score.

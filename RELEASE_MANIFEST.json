@@ -1,8 +1,8 @@
 {
   "product": "Nerdspace Labs Dashboard",
   "project_by": "OneEyedNerdy",
-  "version": "0.6.0",
-  "release": "Channel Intelligence",
+  "version": "1.0.0",
+  "release": "Stable Pre-D1",
   "d1_enabled": false,
   "branding": "text-mark-only",
   "deployment": [

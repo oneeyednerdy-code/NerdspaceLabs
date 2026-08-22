@@ -1,0 +1,10 @@
+[ ] Keyboard-only navigation
+[ ] Visible focus
+[ ] 200% zoom
+[ ] Screen-reader names
+[ ] Reduced motion
+[ ] Color is not sole status indicator
+[ ] 44x44 touch targets
+[ ] 360/390/412px widths
+[ ] Landscape phone
+[ ] Tablet
