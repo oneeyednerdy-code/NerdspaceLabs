@@ -1,0 +1,22 @@
+NERDSPACE 1.20.1 IMAGE HOTFIX
+
+1. Replace the deployed 1.20.0 project with this cumulative package.
+2. Run:
+   npm install
+   npm test
+   npm run build
+   npm run preview
+3. Log in.
+4. Open Data Inspector.
+5. twitch.myProfileImage should show OK / 1 record.
+6. The header avatar should load through a URL beginning:
+   /api/image?url=
+7. In browser Network tools, /api/image should return HTTP 200 with an image/* Content-Type.
+8. Check Raid Radar and Creator Match photos and live thumbnails.
+9. Deploy:
+   npm run deploy
+
+If twitch.myProfileImage says Twitch returned no profile_image_url, the problem is upstream API data.
+If it says OK but /api/image is not HTTP 200, the Worker response now gives the exact delivery failure.
+
+D1/KV/R2 are not required.

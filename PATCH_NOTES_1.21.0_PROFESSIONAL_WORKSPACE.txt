@@ -1,0 +1,13 @@
+NERDSPACE LABS 1.21.0 — PROFESSIONAL CREATOR WORKSPACE
+
+- Professional black/violet Twitch-space visual redesign with restrained space branding.
+- Navigation reframed around Discover, Plan, Network, Analyze and System.
+- Raid Radar presented as Creator Discovery.
+- User goal modes: Raid, Collaborate, Network and Explore.
+- Fine Tune Match controls for Audience, Games, Tags, Genre, Schedule and Language.
+- Browser-local workspace preferences and saved filter presets.
+- Result sorting and selectable result density.
+- Creator Passport side drawer with identity, live data, content evidence and workflow actions.
+- Existing Wormhole-style filters, NerdSync matching, Solstice scheduling, IGDB enrichment, Twitch image proxy, Network Explorer and local creator lists retained.
+- Reduced-motion and responsive layout refinements.
+- No D1/KV/R2.

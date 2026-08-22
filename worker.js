@@ -32,6 +32,34 @@ async function igdbGames(request,env){
     return new Response(text,{status:r.status,headers:{'content-type':'application/json; charset=utf-8','cache-control':r.ok?'public, max-age=86400':'no-store'}});
   }catch(e){return error(e.message||'IGDB is temporarily unavailable.',502)}
 }
+
+const IMAGE_HOSTS = new Set([
+  'static-cdn.jtvnw.net',
+  'static-cdn.jtvnw.net',
+  'clips-media-assets2.twitch.tv',
+  'vod-secure.twitch.tv'
+]);
+function allowedImageHost(host){
+  return IMAGE_HOSTS.has(host) || host.endsWith('.jtvnw.net') || host.endsWith('.twitchcdn.net') || host.endsWith('.twitch.tv');
+}
+async function proxyImage(request){
+  const incoming=new URL(request.url), raw=incoming.searchParams.get('url');
+  if(!raw)return error('Image URL is required.',400);
+  let target; try{target=new URL(raw)}catch{return error('Invalid image URL.',400)}
+  if(target.protocol!=='https:' || !allowedImageHost(target.hostname))return error('Image host is not allowed.',403);
+  try{
+    const r=await fetch(target,{headers:{accept:'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'}});
+    if(!r.ok)return error(`Image upstream failed (${r.status}).`,r.status);
+    const type=r.headers.get('content-type')||'image/jpeg';
+    if(!type.startsWith('image/'))return error('Upstream did not return an image.',502);
+    return new Response(r.body,{status:200,headers:{
+      'content-type':type,
+      'cache-control':'public, max-age=3600, s-maxage=86400',
+      'x-content-type-options':'nosniff'
+    }});
+  }catch{return error('Image CDN is temporarily unavailable.',502)}
+}
+
 const PREFIX = '/api/twitch/helix';
 const ALLOWED = new Set([
   '/users','/streams','/streams/followed','/channels','/channels/followed',
@@ -83,6 +111,7 @@ async function proxy(request, env) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (url.pathname === '/api/image') return proxyImage(request);
     if (url.pathname.startsWith(PREFIX + '/')) return proxy(request, env);
     if (url.pathname === '/api/igdb/games') return igdbGames(request, env);
     if (url.pathname === '/api/twitchtracker-game-summary') {

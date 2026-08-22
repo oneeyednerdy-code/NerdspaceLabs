@@ -71,3 +71,12 @@ test('Solstice weekly overlap matches same weekday across different weeks',()=>{
 });
 
 test('common window finder returns shared weekly availability',()=>{const a=scheduleProfile([{start_time:'2026-08-05T17:00:00Z',end_time:'2026-08-05T21:00:00Z'}],[]),b=scheduleProfile([{start_time:'2026-08-12T18:00:00Z',end_time:'2026-08-12T20:30:00Z'}],[]),w=findCommonWindows([a,b],120);assert.ok(w.length>=1);assert.equal(w[0].day,3);assert.ok(w[0].minutes>=120)});
+
+test('image proxy helper keeps Twitch images same-origin', async()=>{
+ const {proxiedImage}=await import('../js/services/images.js');
+ const x=proxiedImage('https://static-cdn.jtvnw.net/jtv_user_pictures/example.png');
+ assert.ok(x.startsWith('/api/image?url='));
+ assert.ok(decodeURIComponent(x).includes('static-cdn.jtvnw.net'));
+});
+
+test('pagination bounds result pages',async()=>{const {paginate}=await import('../js/engines/pagination.js');const p=paginate(Array.from({length:25},(_,i)=>i),2,12);assert.equal(p.items.length,12);assert.equal(p.pages,3)});

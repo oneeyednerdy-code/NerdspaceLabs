@@ -1,0 +1,24 @@
+NERDSPACE LABS DASHBOARD 1.20.1 — TWITCH IMAGE DELIVERY HOTFIX
+
+The Twitch API data path was returning profile_image_url, but images were still being requested directly
+from Twitch CDN hosts in the browser. This release removes that browser/CDN dependency.
+
+FIX
+- Added /api/image same-origin Cloudflare Worker image proxy.
+- Twitch profile photos now render through the Nerdspace origin.
+- Logged-in user's header avatar uses the image proxy.
+- Raid/Creator Match profile photos use the image proxy.
+- Live stream thumbnails use the image proxy.
+- Game box-art fallbacks use the image proxy.
+- Creator Search profile images use the image proxy.
+- Proxy only accepts HTTPS image URLs from Twitch/JTVNW/TwitchCDN hosts.
+- Proxy validates that the upstream response is actually an image.
+- Images receive cache headers to reduce repeat CDN traffic.
+- Data Inspector now separately reports twitch.myProfileImage.
+
+WHY
+A valid Twitch profile_image_url is not enough if the browser blocks/fails the cross-origin CDN request.
+Routing the image through the same Cloudflare Worker origin makes image delivery deterministic and gives
+Nerdspace an HTTP status it can diagnose.
+
+NO D1 REQUIRED.

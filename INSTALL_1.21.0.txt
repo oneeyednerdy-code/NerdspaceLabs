@@ -1,0 +1,25 @@
+NERDSPACE LABS 1.21.0 INSTALL
+Cumulative over 1.20.1.
+
+npm install
+npm test
+npm run build
+npm run preview
+
+Verify:
+- Twitch login and profile photos
+- Creator Discovery filters
+- Raid/Collaborate/Network/Explore goal tabs
+- Fine Tune Match sliders
+- Save current preset
+- Result sort and density controls
+- View Details Creator Passport
+- Schedule Lab / Find My Windows
+- Network Explorer
+- Local creator lists/notes
+- Data Inspector
+- 360/390/412px mobile, keyboard use and 200% zoom
+
+Deploy: npm run deploy
+IGDB_CLIENT_SECRET remains a Cloudflare secret.
+D1 remains disabled.

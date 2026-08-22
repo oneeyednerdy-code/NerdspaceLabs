@@ -4,6 +4,7 @@ import {getIGDBGames} from './igdb.js';
 export async function loadCreatorData(userId){
  const status={}; const safe=async(name,fn,fallback)=>{try{const value=await fn();status[name]={ok:true,count:Array.isArray(value)?value.length:(value instanceof Map?value.size:undefined)};return value}catch(e){status[name]={ok:false,error:e.message};return fallback}};
  const user=await safe('twitch.identity',()=>getUser(userId),null); if(!user)return {status,user:null};
+ status['twitch.myProfileImage']={ok:Boolean(user.profile_image_url),count:user.profile_image_url?1:0,error:user.profile_image_url?'':'Twitch returned no profile_image_url'};
  const [channel,stream,videos,followedStreams,followedChannels,clips,followerTotal,publishedSchedule,tracker]=await Promise.all([
   safe('twitch.channel',()=>getChannel(userId),null),safe('twitch.live',()=>getStream(userId),null),safe('twitch.vods',()=>getRecentVideos(userId,100),[]),
   safe('twitch.followedLive',()=>getFollowedStreams(userId,500),[]),safe('twitch.followedChannels',()=>getFollowedChannels(userId,1000),[]),
