@@ -1,9 +1,9 @@
 NERDSPACE LABS DASHBOARD
-VERSION 0.1.0 — FOUNDATION
+VERSION 0.2.0 — UNIFIED TOOLS
 A project by OneEyedNerdy
 
 PURPOSE
-Shared Cloudflare/Twitch foundation, Mission Control, local-first storage, diagnostics.
+Shared Creator Passport plus Wormhole/NerdSync/Solstice integration architecture.
 
 BRANDING
 - Text mark only: NERDSPACE LABS / DASHBOARD.
