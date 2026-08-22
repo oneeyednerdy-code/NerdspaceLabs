@@ -1,0 +1,27 @@
+NERDSPACE LABS 1.22.1 — INSIGHTS / FILTERS HOTFIX
+
+NETWORK CLEANUP (INSIGHTS)
+- Fixed the confusing empty-result behavior while scanning.
+- The default result filter is now All scanned, so rows appear immediately as the scan progresses.
+- Scan status now reports both progress and how many results have loaded.
+- Each 50-channel batch also retrieves Twitch user profiles.
+- Added Account Type filter: Broadcaster, Affiliate, Partner.
+- Each cleanup result displays its account type.
+- Date/activity filters still work after the scan.
+
+NETWORK EXPLORER
+- Fixed Just Chatting and IRL genre/category selections returning no creators.
+- These Twitch categories are now treated as category matches when selected from the Network genre control, instead of requiring IGDB genre enrichment.
+
+SCHEDULE MATCH
+- Replaced Genre with Game.
+- Users can type the game/category they want to match.
+- Schedule results combine game filtering with published Twitch schedule / 30-day VOD timing evidence.
+
+IGDB GAME AUTOCOMPLETE
+- Added /api/igdb/search to the Cloudflare Worker.
+- Raid Radar Game, Creator Match Game, Schedule Match Game, and Game Radar search now accept typed game names and request autocomplete suggestions from IGDB.
+- Suggestions are debounced and capped to keep requests controlled.
+- The game fields remain usable if IGDB autocomplete is temporarily unavailable.
+
+No D1/KV/R2 required.

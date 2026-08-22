@@ -2,7 +2,7 @@ import { APP_CONFIG } from '../config.js';
 import { beginLogin, consumeOAuthHash, validateToken, logout } from './auth.js';
 import { storage } from './storage.js';
 import { loadCreatorData } from './services/data-orchestrator.js';
-import { getUserByLogin,getChannel,getStream,searchChannels,getSchedule,getRecentVideos } from './services/twitch.js';
+import { getUserByLogin,getUsers,getChannel,getStream,searchChannels,getSchedule,getRecentVideos } from './services/twitch.js';
 import { summarizeGameHistory,buildGameSignals } from './engines/game-radar.js';
 import { inferSchedule } from './engines/schedule.js';
 import { buildSignals } from './engines/signals.js';
@@ -86,7 +86,7 @@ function creatorCard(stream,score,evidence={},kind='raid'){
 }
 function renderTools(){
  const games=uniqueOptions(state.followedStreams,'game_name'),langs=uniqueOptions(state.followedStreams,'language'),genres=[...new Set([...CREATOR_GENRES,...state.followedStreams.flatMap(x=>(x.genres||[]).map(normalizeGenre))])].sort((a,b)=>a.localeCompare(b));
- options($('#raidGame'),games);options($('#matchGame'),games);options($('#raidGenre'),genres);options($('#matchGenre'),genres);options($('#raidLanguage'),langs);options($('#matchLanguage'),langs);
+ options($('#raidGenre'),genres);options($('#matchGenre'),genres);options($('#raidLanguage'),langs);options($('#matchLanguage'),langs);
  const rf=filters('raid');const visibleRaid=filterCreators(state.raidMatches,rf);
  $('#raidCount').textContent=`${visibleRaid.length} MATCHES`;$('#raidList').innerHTML=visibleRaid.slice(0,80).map(s=>creatorCard(s,s.raidScore,s.raidEvidence,'raid')).join('')||'<p class="empty">No creators match these filters.</p>';
  const mf=filters('match');const minOverlap=Number($('#matchOverlap')?.value||0);
@@ -141,8 +141,8 @@ function followedCreatorBase(){
 }
 function renderFollowerScheduleMatches(){
  const host=$('#scheduleFollowerMatches');if(!host)return;
- const q=($('#scheduleFollowerSearch')?.value||'').trim().toLowerCase(),min=Number($('#scheduleMinOverlap')?.value||0),day=$('#scheduleDay')?.value||'',genre=$('#scheduleMatchGenre')?.value||'',liveOnly=$('#scheduleLiveOnly')?.checked;
- let rows=followedCreatorBase().filter(c=>state.scheduleEvidence.has(String(c.user_id))||state.schedules.has(c.user_id)).map(c=>({c,e:scheduleEvidence(c)})).filter(({c,e})=>(!q||[c.user_name,c.game_name,...(c.tags||[])].join(' ').toLowerCase().includes(q))&&e.minutes>=min&&(!genre||creatorGenres(c).includes(genre))&&(!liveOnly||c.type==='live'||c.viewer_count!=null)&&(!day||e.sharedDays.includes(day.slice(0,3))));
+ const q=($('#scheduleFollowerSearch')?.value||'').trim().toLowerCase(),min=Number($('#scheduleMinOverlap')?.value||0),day=$('#scheduleDay')?.value||'',game=($('#scheduleMatchGame')?.value||'').trim().toLowerCase(),liveOnly=$('#scheduleLiveOnly')?.checked;
+ let rows=followedCreatorBase().filter(c=>state.scheduleEvidence.has(String(c.user_id))||state.schedules.has(c.user_id)).map(c=>({c,e:scheduleEvidence(c)})).filter(({c,e})=>(!q||[c.user_name,c.game_name,...(c.tags||[])].join(' ').toLowerCase().includes(q))&&e.minutes>=min&&(!game||String(c.game_name||'').toLowerCase().includes(game))&&(!liveOnly||c.type==='live'||c.viewer_count!=null)&&(!day||e.sharedDays.includes(day.slice(0,3))));
  const sort=$('#scheduleSort')?.value||'overlap';rows.sort((a,b)=>sort==='name'?String(a.c.user_name).localeCompare(String(b.c.user_name)):sort==='viewers'?(b.c.viewer_count||0)-(a.c.viewer_count||0):b.e.minutes-a.e.minutes);
  $('#scheduleMatchCount').textContent=rows.length;
  host.innerHTML=rows.map(({c,e})=>`<article class="schedule-match-card">${c.profile_image_url?`<img src="${esc(proxiedImage(c.profile_image_url))}" alt="">`:'<div class="schedule-avatar-placeholder"></div>'}<div><strong>${esc(c.user_name||c.user_login)}</strong><div class="muted">${esc(c.game_name||'Offline / no current category')}</div><div class="schedule-evidence">${e.source==='published'?'Published Twitch schedule':'30-day VOD timing'} • ${e.confidence}% evidence${e.sharedDays.length?' • '+esc(e.sharedDays.join(', ')):''}</div></div><span class="overlap-pill">${Math.floor(e.minutes/60)}h ${e.minutes%60}m overlap</span></article>`).join('')||'<div class="empty">No scanned creators match these schedule filters. Use “Scan 50 creators” to load schedule evidence.</div>';
@@ -188,7 +188,7 @@ function renderCompactNetwork(){
  const host=$('#networkResults');if(!host)return;
  const q=($('#networkSearch')?.value||'').trim().toLowerCase(),rel=$('#networkRelation')?.value||'all',genre=$('#networkGenre')?.value||'',live=$('#networkLive')?.value||'all';
  const lists=getLists();const ids=new Set(rel==='saved'?lists.favorites:rel==='collabs'?lists.collabs:rel==='raidLater'?lists.raidLater:[]);
- let rows=discoveryPool().filter(c=>(!q||[c.user_name,c.user_login,c.game_name,...(c.tags||[])].join(' ').toLowerCase().includes(q))&&(!genre||creatorGenres(c).includes(genre))&&(live==='all'||(live==='live'?(c.type==='live'||c.viewer_count!=null):!(c.type==='live'||c.viewer_count!=null)))&&(rel==='all'||(rel==='following'&&isFollowingCreator(c))||(rel!=='following'&&rel!=='all'&&ids.has(String(c.user_id))))).map(c=>({c,fit:networkFit(c)}));
+ let rows=discoveryPool().filter(c=>(!q||[c.user_name,c.user_login,c.game_name,...(c.tags||[])].join(' ').toLowerCase().includes(q))&&(!genre||creatorGenres(c).includes(genre)||(['Just Chatting','IRL'].includes(genre)&&String(c.game_name||'').toLowerCase()===genre.toLowerCase()))&&(live==='all'||(live==='live'?(c.type==='live'||c.viewer_count!=null):!(c.type==='live'||c.viewer_count!=null)))&&(rel==='all'||(rel==='following'&&isFollowingCreator(c))||(rel!=='following'&&rel!=='all'&&ids.has(String(c.user_id))))).map(c=>({c,fit:networkFit(c)}));
  const sort=$('#networkSort')?.value||'fit';rows.sort((a,b)=>sort==='name'?String(a.c.user_name||'').localeCompare(String(b.c.user_name||'')):sort==='viewers'?(b.c.viewer_count||0)-(a.c.viewer_count||0):b.fit.score-a.fit.score);
  $('#networkVisibleCount').textContent=rows.length;
  host.innerHTML=rows.slice(0,50).map(({c,fit})=>`<article class="network-rank-card"><div class="network-rank-score">${fit.score}%<small>FIT</small></div>${c.profile_image_url?`<img class="network-rank-avatar" src="${esc(proxiedImage(c.profile_image_url))}" alt="">`:''}<div class="network-rank-copy"><strong>${esc(c.user_name||c.user_login)}</strong><p>${esc(c.game_name||'Offline / no category')} ${c.viewer_count!=null?'• '+Number(c.viewer_count).toLocaleString()+' viewers':''}</p><small>${esc(fit.reason)}</small><div class="tag-row">${creatorGenres(c).slice(0,2).map(t=>`<span class="tag genre-tag">${esc(t)}</span>`).join('')}${(c.tags||[]).slice(0,3).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></div><div class="network-rank-actions"><button class="mini-btn" data-details="${esc(c.user_id)}">Details</button><a class="mini-btn" href="${twitchUrl(c.user_login)}" target="_blank" rel="noopener">Twitch</a></div></article>`).join('')||'<div class="empty">No creators match these network filters.</div>';bindCreatorDetails();bindImageFallbacks();
@@ -197,18 +197,20 @@ function renderCompactNetwork(){
 function cleanupCutoff(){const v=$('#cleanupDate')?.value;if(v)return new Date(v+'T23:59:59').getTime();const d=new Date();d.setMonth(d.getMonth()-6);return d.getTime()}
 function renderCleanup(){
  const host=$('#cleanupResults');if(!host)return;
- const cutoff=cleanupCutoff(),q=($('#cleanupSearch')?.value||'').trim().toLowerCase(),status=$('#cleanupStatus')?.value||'inactive';
- let rows=state.cleanupRows.map(r=>({...r,inactive:r.lastStream?new Date(r.lastStream).getTime()<cutoff:null})).filter(r=>(!q||[r.name,r.login].join(' ').toLowerCase().includes(q))&&(status==='all'||(status==='inactive'&&r.inactive===true)||(status==='active'&&r.inactive===false)||(status==='unknown'&&r.inactive===null)));
+ const cutoff=cleanupCutoff(),q=($('#cleanupSearch')?.value||'').trim().toLowerCase(),status=$('#cleanupStatus')?.value||'all',type=$('#cleanupType')?.value||'all';
+ let rows=state.cleanupRows.map(r=>({...r,inactive:r.lastStream?new Date(r.lastStream).getTime()<cutoff:null})).filter(r=>(!q||[r.name,r.login].join(' ').toLowerCase().includes(q))&&(status==='all'||(status==='inactive'&&r.inactive===true)||(status==='active'&&r.inactive===false)||(status==='unknown'&&r.inactive===null))&&(type==='all'||r.accountType===type));
  rows.sort((a,b)=>(a.lastStream?new Date(a.lastStream).getTime():0)-(b.lastStream?new Date(b.lastStream).getTime():0));
  $('#cleanupScanned').textContent=state.cleanupRows.length;$('#cleanupInactive').textContent=state.cleanupRows.filter(r=>r.lastStream&&new Date(r.lastStream).getTime()<cutoff).length;$('#cleanupUnknown').textContent=state.cleanupRows.filter(r=>!r.lastStream).length;
- host.innerHTML=rows.map(r=>`<article class="cleanup-row"><div>${r.profile_image_url?`<img src="${esc(proxiedImage(r.profile_image_url))}" alt="">`:''}<div><strong>${esc(r.name)}</strong><p>${r.lastStream?`Last VOD: ${new Date(r.lastStream).toLocaleDateString()}`:'No recent VOD evidence returned'}</p><small>Followed ${r.followed_at?new Date(r.followed_at).toLocaleDateString():'date unavailable'}</small></div></div><a class="mini-btn" href="${twitchUrl(r.login)}" target="_blank" rel="noopener">Review on Twitch</a></article>`).join('')||'<div class="empty">No scanned channels match this cleanup filter.</div>';
+ host.innerHTML=rows.map(r=>`<article class="cleanup-row"><div>${r.profile_image_url?`<img src="${esc(proxiedImage(r.profile_image_url))}" alt="">`:''}<div><strong>${esc(r.name)}</strong><p>${r.lastStream?`Last VOD: ${new Date(r.lastStream).toLocaleDateString()}`:'No recent VOD evidence returned'}</p><small>${esc(r.accountType==='affiliate'?'Affiliate':r.accountType==='partner'?'Partner':'Broadcaster')} • Followed ${r.followed_at?new Date(r.followed_at).toLocaleDateString():'date unavailable'}</small></div></div><a class="mini-btn" href="${twitchUrl(r.login)}" target="_blank" rel="noopener">Review on Twitch</a></article>`).join('')||'<div class="empty">No scanned channels match this cleanup filter.</div>';
 }
 async function scanCleanupBatch(){
  if(state.cleanupScanning)return;state.cleanupScanning=true;
  const all=followedCreatorBase(),batch=all.slice(state.cleanupCursor,state.cleanupCursor+50),status=$('#cleanupScanStatus'),btn=$('#cleanupScanBtn'),more=$('#cleanupScanMoreBtn');if(btn)btn.disabled=true;if(more)more.disabled=true;
  if(!batch.length){if(status)status.textContent='ALL LOADED CHANNELS SCANNED';state.cleanupScanning=false;return}
- let next=0,done=0;const workers=Array.from({length:4},async()=>{while(next<batch.length){const c=batch[next++];let last=null;try{const vids=await getRecentVideos(c.user_id,1);last=vids[0]?.created_at||null}catch(e){state.errors.push({time:new Date().toISOString(),message:`Cleanup scan ${c.user_login}: ${e.message}`})}
- state.cleanupRows.push({id:c.user_id,login:c.user_login,name:c.user_name,profile_image_url:c.profile_image_url,followed_at:c.followed_at,lastStream:last});done++;if(status)status.textContent=`SCANNING ${done}/${batch.length}`;renderCleanup()}});await Promise.all(workers);state.cleanupCursor+=batch.length;state.cleanupScanning=false;if(status)status.textContent=`SCANNED ${state.cleanupCursor}/${all.length}`;if(btn)btn.disabled=false;if(more){more.disabled=false;more.hidden=state.cleanupCursor>=all.length}renderCleanup()
+ let profiles=[];try{profiles=await getUsers(batch.map(c=>c.user_id))}catch(e){state.errors.push({time:new Date().toISOString(),message:`Cleanup profiles: ${e.message}`})}
+ const profileById=new Map(profiles.map(x=>[String(x.id),x]));
+ let next=0,done=0;const workers=Array.from({length:4},async()=>{while(next<batch.length){const c=batch[next++],profile=profileById.get(String(c.user_id))||{},accountType=profile.broadcaster_type==='affiliate'?'affiliate':profile.broadcaster_type==='partner'?'partner':'broadcaster';let last=null;try{const vids=await getRecentVideos(c.user_id,1);last=vids[0]?.created_at||null}catch(e){state.errors.push({time:new Date().toISOString(),message:`Cleanup scan ${c.user_login}: ${e.message}`})}
+ state.cleanupRows.push({id:c.user_id,login:c.user_login,name:c.user_name,profile_image_url:profile.profile_image_url||c.profile_image_url,followed_at:c.followed_at,lastStream:last,accountType});done++;if(status)status.textContent=`SCANNING ${done}/${batch.length} • ${state.cleanupRows.length} results loaded`;renderCleanup()}});await Promise.all(workers);state.cleanupCursor+=batch.length;state.cleanupScanning=false;if(status)status.textContent=`SCANNED ${state.cleanupCursor}/${all.length}`;if(btn)btn.disabled=false;if(more){more.disabled=false;more.hidden=state.cleanupCursor>=all.length}renderCleanup()
 }
 function initUnifiedFilters(){
   $$('.nerdspace-filter-panel').forEach(panel=>{
@@ -247,6 +249,16 @@ function showAuthenticatedWorkspace(){
   }));
 }
 
+let igdbSuggestTimer=null,igdbSuggestSeq=0;
+async function refreshIGDBSuggestions(value){
+ const q=String(value||'').trim();if(q.length<2)return;
+ const seq=++igdbSuggestSeq;
+ try{const rows=await searchIGDBGames(q,12);if(seq!==igdbSuggestSeq)return;const dl=$('#igdbGameOptions');if(dl)dl.innerHTML=rows.map(g=>`<option value="${esc(g.name)}"></option>`).join('')}
+ catch(e){recordLaunchEvent('igdb','game autocomplete unavailable',e?.message||String(e))}
+}
+function bindIGDBGameInputs(){
+ $$('.igdb-game-input').forEach(input=>input.addEventListener('input',()=>{clearTimeout(igdbSuggestTimer);igdbSuggestTimer=setTimeout(()=>refreshIGDBSuggestions(input.value),220)}))
+}
 let showAllGameSignals=false;
 function renderGameSignals(){
  const host=$('#gameRadar');if(!host)return;const rows=state.gameSignals.slice(0,showAllGameSignals?30:6);
@@ -300,9 +312,10 @@ $('#loadingCopyLog')?.addEventListener('click',async()=>{const b=$('#loadingCopy
 $('#loadingRetry')?.addEventListener('click',()=>{recordLaunchEvent('recovery','manual retry');location.reload()});
 $('#loadingBackToLogin')?.addEventListener('click',()=>{recordLaunchEvent('recovery','back to login');showLoggedOut('Loading was cancelled. You can try signing in again.')});
 setInterval(()=>{if($('#workspaceLoading')?.hidden)return;const sec=launchElapsedSeconds(),el=$('#loadingElapsed');if(el)el.textContent=sec+'s';const st=$('#loadingStatusText');if(st&&sec>=15)st.textContent='Still working — you can download a diagnostic log below.';if(st&&sec>=30)st.textContent='This is taking longer than expected. Try Retry loading or send us the diagnostic log.'},1000);
+bindIGDBGameInputs();
 initUnifiedFilters();renderWorkspaceControls();
 $$('[data-source]').forEach(b=>b.onclick=()=>{$$('[data-source]').forEach(x=>x.classList.remove('active'));b.classList.add('active');discoverySource=b.dataset.source;renderTools();renderCompactNetwork()});
-['scheduleFollowerSearch','scheduleMinOverlap','scheduleDay','scheduleMatchGenre','scheduleLiveOnly','scheduleSort'].forEach(id=>$('#'+id)?.addEventListener(id==='scheduleFollowerSearch'?'input':'change',renderFollowerScheduleMatches));
+['scheduleFollowerSearch','scheduleMinOverlap','scheduleDay','scheduleMatchGame','scheduleLiveOnly','scheduleSort'].forEach(id=>$('#'+id)?.addEventListener(id==='scheduleFollowerSearch'?'input':'change',renderFollowerScheduleMatches));
 ['networkSearch','networkRelation','networkGenre','networkLive','networkSort'].forEach(id=>$('#'+id)?.addEventListener(id==='networkSearch'?'input':'change',renderCompactNetwork));
 $$('[data-goal]').forEach(b=>b.onclick=()=>{$$('[data-goal]').forEach(x=>x.classList.remove('active'));b.classList.add('active');workspace.goal=b.dataset.goal;saveWorkspace({goal:workspace.goal})});
 $('#resultSort')?.addEventListener('change',e=>{workspace.sort=e.target.value;saveWorkspace({sort:workspace.sort});renderTools()});
@@ -312,7 +325,7 @@ $$('.nerdspace-filter-panel').forEach(p=>{p.addEventListener('change',renderUnif
 $('#toggleGameSignals')?.addEventListener('click',()=>{showAllGameSignals=!showAllGameSignals;renderGameSignals();renderFilteredGames()});
 $('#scheduleScanBtn')?.addEventListener('click',scanScheduleBatch);$('#scheduleScanMoreBtn')?.addEventListener('click',scanScheduleBatch);
 $('#cleanupScanBtn')?.addEventListener('click',scanCleanupBatch);$('#cleanupScanMoreBtn')?.addEventListener('click',scanCleanupBatch);
-['cleanupDate','cleanupStatus'].forEach(id=>$('#'+id)?.addEventListener('change',renderCleanup));$('#cleanupSearch')?.addEventListener('input',renderCleanup);
+['cleanupDate','cleanupStatus','cleanupType'].forEach(id=>$('#'+id)?.addEventListener('change',renderCleanup));$('#cleanupSearch')?.addEventListener('input',renderCleanup);
 $('#drawerClose')?.addEventListener('click',closeCreatorDrawer);$('#drawerBackdrop')?.addEventListener('click',closeCreatorDrawer);
 $('#creatorSearchForm').addEventListener('submit',e=>{e.preventDefault();creatorSearch($('#creatorSearchInput').value)});
 try{const consumed=consumeOAuthHash();recordLaunchEvent('auth','oauth callback checked',consumed?'callback consumed':'no callback payload')}catch(e){recordLaunchEvent('auth','oauth callback error',e?.message||String(e));state.errors.push({time:new Date().toISOString(),message:e.message});$('#loginError').textContent=e.message;showLoggedOut(e.message)}load();if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));

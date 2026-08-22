@@ -33,6 +33,21 @@ async function igdbGames(request,env){
   }catch(e){return error(e.message||'IGDB is temporarily unavailable.',502)}
 }
 
+async function igdbSearch(request,env){
+  if(request.method!=='POST') return error('Method not allowed.',405);
+  let body;try{body=await request.json()}catch{return error('Invalid JSON.',400)}
+  const q=String(body.query||'').trim().slice(0,80),limit=Math.max(1,Math.min(20,Number(body.limit||12)));
+  if(q.length<2)return new Response('[]',{headers:{'content-type':'application/json','cache-control':'no-store'}});
+  try{
+    const token=await getIgdbToken(env);
+    const safe=q.replace(/\\/g,'\\\\').replace(/"/g,'\\"');
+    const query=`search "${safe}"; fields id,name,genres.name,cover.image_id,first_release_date; limit ${limit};`;
+    const r=await fetch(IGDB_ORIGIN+'/games',{method:'POST',headers:{'Client-ID':env.TWITCH_CLIENT_ID,'Authorization':`Bearer ${token}`,'Accept':'application/json','Content-Type':'text/plain'},body:query});
+    const text=await r.text();
+    return new Response(text,{status:r.status,headers:{'content-type':'application/json; charset=utf-8','cache-control':r.ok?'public, max-age=300':'no-store'}});
+  }catch(e){return error(e.message||'IGDB search is temporarily unavailable.',502)}
+}
+
 const IMAGE_HOSTS = new Set([
   'static-cdn.jtvnw.net',
   'static-cdn.jtvnw.net',
@@ -114,6 +129,7 @@ export default {
     if (url.pathname === '/api/image') return proxyImage(request);
     if (url.pathname.startsWith(PREFIX + '/')) return proxy(request, env);
     if (url.pathname === '/api/igdb/games') return igdbGames(request, env);
+    if (url.pathname === '/api/igdb/search') return igdbSearch(request, env);
     if (url.pathname === '/api/twitchtracker-game-summary') {
       if (request.method !== 'GET') return error('Method not allowed.', 405);
       return twitchTrackerGameSummary({request, env, waitUntil: ctx.waitUntil.bind(ctx)});

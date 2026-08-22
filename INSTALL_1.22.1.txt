@@ -1,0 +1,28 @@
+NERDSPACE LABS 1.22.1
+
+npm install
+npm test
+npm run build
+npm run preview
+
+VERIFY
+1. Insights / Network Cleanup:
+   - click Scan 50
+   - rows should appear during the scan, not only after it
+   - default filter is All scanned
+   - Account Type filters Broadcaster / Affiliate / Partner work
+   - date and activity filters work after scanning
+2. Network Explorer:
+   - select Just Chatting
+   - live Just Chatting creators in the current discovery pool should remain visible
+3. Schedule Match:
+   - Game field replaces Genre
+   - type a game and verify results narrow by current category
+4. IGDB autocomplete:
+   - type 2+ characters in Raid Game, Creator Match Game, Schedule Match Game, Game Radar search
+   - suggestions should populate from IGDB
+5. Verify Cloudflare has TWITCH_CLIENT_ID and IGDB_CLIENT_SECRET configured.
+6. Test desktop and mobile.
+
+Deploy:
+npm run deploy
