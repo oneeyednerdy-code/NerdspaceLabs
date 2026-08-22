@@ -1,0 +1,15 @@
+NERDSPACE PUBLIC ALPHA RELEASE GATE
+[ ] npm test passes
+[ ] npm run build passes
+[ ] Twitch connect + logout tested
+[ ] OAuth callback tested on production hostname
+[ ] Twitch API 401/429/5xx states tested
+[ ] TwitchTracker unavailable state tested
+[ ] No OAuth token appears in diagnostics
+[ ] No Twitch Client Secret exists in client bundle/repository
+[ ] Keyboard navigation checked
+[ ] 200% browser zoom checked
+[ ] Narrow mobile viewport checked
+[ ] Empty/loading/error/success states checked
+[ ] Privacy page matches actual storage behavior
+[ ] Previous deployment ZIP/tag retained for rollback

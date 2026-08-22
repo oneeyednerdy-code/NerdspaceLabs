@@ -1,9 +1,9 @@
 NERDSPACE LABS DASHBOARD
-VERSION 0.4.0 — ANALYTICS & EXPERIMENTS
+VERSION 0.5.0 — CREATOR OPERATIONS
 A project by OneEyedNerdy
 
 PURPOSE
-Channel comparisons and local Experiment Tracker.
+Pre-stream, live and post-stream workflow specifications.
 
 BRANDING
 - Text mark only: NERDSPACE LABS / DASHBOARD.
