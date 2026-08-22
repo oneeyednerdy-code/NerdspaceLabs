@@ -1,0 +1,19 @@
+NERDSPACE LABS 1.21.1
+Cumulative update over 1.21.0.
+
+npm install
+npm test
+npm run build
+npm run preview
+
+TEST
+1. Creator Discovery: switch Discovery Feed / Following / Outside My Network.
+2. Confirm MMO appears in Genre.
+3. Schedule Match: verify followed creators can be searched and narrowed by overlap.
+4. Network Explorer: test search, relationship, genre and live/offline filters.
+5. Open detailed Schedule tools and verify existing overlap matrix still works.
+6. Verify profile images, Creator Passport, IGDB, TwitchTracker and Data Inspector.
+7. Test 360/390/412/768/1440 widths and 200% zoom.
+
+Deploy: npm run deploy
+No D1 required.

@@ -15,6 +15,7 @@ import { getLists,toggleList,setNote,clearLists } from './engines/local-lists.js
 import { proxiedImage } from './services/images.js';
 import { getWorkspace,saveWorkspace,savePreset } from './engines/workspace-settings.js';
 import { paginate } from './engines/pagination.js';
+import { normalizeGenre } from './engines/genre-taxonomy.js';
 
 const state={user:null,channel:null,stream:null,videos:[],followedStreams:[],followedChannels:[],clips:[],followerTotal:null,publishedSchedule:[],inferredSchedule:[],gameHistory:[],gameSignals:[],tracker:null,igdbGames:[],raidMatches:[],creatorMatches:[],providerStatus:{},profiles:[],schedules:new Map(),errors:[]};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -71,6 +72,42 @@ function openCreatorDrawer(id){const c=(state.followedStreams||[]).find(x=>Strin
 function closeCreatorDrawer(){if($('#drawerBackdrop'))$('#drawerBackdrop').hidden=true;if($('#creatorDrawer'))$('#creatorDrawer').hidden=true}
 function bindCreatorDetails(){$$('[data-details]').forEach(b=>b.onclick=()=>openCreatorDrawer(b.dataset.details))}
 
+
+let discoverySource='all';
+function creatorGenres(c){return (c.genres||[]).map(normalizeGenre)}
+function isFollowingCreator(c){return (state.following||state.followed||[]).some(x=>String(x.user_id||x.to_id||x.id)===String(c.user_id))}
+function discoveryPool(){
+  const followed=state.followedStreams||[];
+  const discovered=state.discoveryFeed||state.discovery||state.searchResults||state.categoryStreams||[];
+  const map=new Map();
+  [...followed,...discovered].forEach(c=>{if(c?.user_id)map.set(String(c.user_id),c)});
+  let out=[...map.values()];
+  if(discoverySource==='following')out=out.filter(isFollowingCreator);
+  if(discoverySource==='outside')out=out.filter(c=>!isFollowingCreator(c));
+  return out;
+}
+function scheduleEvidence(c){
+  const mine=state.mySchedule||state.schedule||[];
+  const theirs=c.schedule||c.inferred_schedule||c.schedule_segments||[];
+  try{const e=solsticeEvidence(mine,theirs);return {minutes:e.overlapMinutes||e.overlap_minutes||0,score:e.schedule||e.score||0}}catch{return {minutes:c.overlapMinutes||0,score:0}}
+}
+function renderFollowerScheduleMatches(){
+  const host=$('#scheduleFollowerMatches');if(!host)return;
+  const q=($('#scheduleFollowerSearch')?.value||'').trim().toLowerCase(),min=Number($('#scheduleMinOverlap')?.value||0),day=$('#scheduleDay')?.value||'',genre=$('#scheduleMatchGenre')?.value||'',liveOnly=$('#scheduleLiveOnly')?.checked;
+  let rows=(state.followedStreams||[]).map(c=>({c,e:scheduleEvidence(c)})).filter(({c,e})=>(!q||[c.user_name,c.game_name,...(c.tags||[])].join(' ').toLowerCase().includes(q))&&e.minutes>=min&&(!genre||creatorGenres(c).includes(genre))&&(!liveOnly||c.type==='live'||c.viewer_count!=null)&&(!day||(c.schedule_days||[]).includes(day)));
+  const sort=$('#scheduleSort')?.value||'overlap';rows.sort((a,b)=>sort==='name'?String(a.c.user_name).localeCompare(String(b.c.user_name)):sort==='viewers'?(b.c.viewer_count||0)-(a.c.viewer_count||0):b.e.minutes-a.e.minutes);
+  $('#scheduleMatchCount').textContent=rows.length;
+  host.innerHTML=rows.map(({c,e})=>`<article class="schedule-match-card">${c.profile_image_url?`<img src="${esc(proxiedImage(c.profile_image_url))}" alt="">`:'<div></div>'}<div><strong>${esc(c.user_name||c.user_login)}</strong><div class="muted">${esc(c.game_name||'Offline / no current category')}</div><div class="muted">${creatorGenres(c).slice(0,3).map(esc).join(' · ')}</div></div><span class="overlap-pill">${Math.floor(e.minutes/60)}h ${e.minutes%60}m overlap</span></article>`).join('')||'<div class="empty">No followed creators match these schedule filters.</div>';
+}
+function renderCompactNetwork(){
+  const host=$('#networkResults');if(!host)return;
+  const q=($('#networkSearch')?.value||'').trim().toLowerCase(),rel=$('#networkRelation')?.value||'all',genre=$('#networkGenre')?.value||'',live=$('#networkLive')?.value||'all';
+  const ids=new Set(rel==='saved'?(state.localLists?.favorites||[]):rel==='collabs'?(state.localLists?.collabs||[]):rel==='raidLater'?(state.localLists?.raidLater||[]):[]);
+  let rows=discoveryPool().filter(c=>(!q||[c.user_name,c.game_name,...(c.tags||[])].join(' ').toLowerCase().includes(q))&&(!genre||creatorGenres(c).includes(genre))&&(live==='all'||(live==='live'?(c.type==='live'||c.viewer_count!=null):!(c.type==='live'||c.viewer_count!=null)))&&(rel==='all'||(rel==='following'&&isFollowingCreator(c))||(rel!=='following'&&rel!=='all'&&ids.has(String(c.user_id)))));
+  $('#networkVisibleCount').textContent=rows.length;
+  host.innerHTML=rows.slice(0,60).map(c=>creatorCard({stream:c,score:0,evidence:{}},'network')).join('')||'<div class="empty">No creators match these network filters.</div>';bindCrossToolActions();bindCreatorDetails();bindImageFallbacks();
+}
+
 function render(){
  $('#version').textContent=`ALPHA ${APP_CONFIG.version}`;$('#loginView').hidden=Boolean(state.user);$('#appShell').hidden=!state.user;if(!state.user)return;
  $('#avatar').src=proxiedImage(state.user.profile_image_url||'');$('#displayName').textContent=state.user.display_name;$('#loginName').textContent='@'+state.user.login;$('#livePill').textContent=state.stream?'LIVE':'OFFLINE';$('#livePill').className='status-pill '+(state.stream?'good':'');$('#channelGame').textContent=state.stream?.game_name||state.channel?.game_name||'No category';$('#viewerStat').textContent=state.stream?.viewer_count??'—';$('#vodStat').textContent=state.videos.length;$('#networkStat').textContent=state.followedStreams.length;$('#scheduleStat').textContent=state.publishedSchedule.length?'Published':(state.inferredSchedule.length?'Observed':'Limited');
@@ -79,7 +116,7 @@ function render(){
  $('#gameRadar').innerHTML=state.gameSignals.slice(0,12).map(g=>`<article class="recommend-card"><span>EXPERIMENTAL • ${g.score}% SIGNAL</span><h3>${esc(g.name)}</h3><p>${g.channels} followed creators live • ${g.viewers.toLocaleString()} combined current viewers</p><button class="mini-btn" data-game-to-raid="${esc(g.name)}">Find creators</button></article>`).join('')||'<p class="empty">No adjacent game signals available right now.</p>';
  const sched=state.publishedSchedule.length?state.publishedSchedule.slice(0,12).map(s=>({label:new Date(s.start_time).toLocaleString(),confidence:'PUBLISHED',detail:s.title||s.category?.name||'Scheduled stream'})):state.inferredSchedule.map(s=>({label:`${s.day} around ${s.hour}:00`,confidence:`${s.confidence}%`,detail:`Observed in ${s.count} recent broadcasts`}));$('#scheduleList').innerHTML=sched.map(x=>`<article class="data-row"><div><strong>${esc(x.label)}</strong><small>${esc(x.detail)}</small></div><div class="confidence">${esc(x.confidence)}</div></article>`).join('')||'<p class="empty">No schedule evidence available.</p>';
  $('#trackerData').textContent=state.tracker?'TwitchTracker supplemental historical context loaded.':'TwitchTracker unavailable; Twitch features remain active.';$('#providerStatus').innerHTML=providerRows();$('#followerStat').textContent=state.followerTotal??'—';$('#clipStat').textContent=state.clips.length;$('#followingStat').textContent=state.followedChannels.length;
- renderTools();if($('#resultCount'))$('#resultCount').textContent=state.raidMatches?.length||0;renderNetwork();renderScheduleMatrix();renderCommonWindows();renderSavedCreators();bindImageFallbacks();$$('[data-game-to-raid]').forEach(b=>b.onclick=()=>{showView('raid');$('#raidGame').value=b.dataset.gameToRaid;renderTools()});
+ renderTools();renderFollowerScheduleMatches();renderCompactNetwork();if($('#resultCount'))$('#resultCount').textContent=state.raidMatches?.length||0;renderNetwork();renderScheduleMatrix();renderCommonWindows();renderSavedCreators();bindImageFallbacks();$$('[data-game-to-raid]').forEach(b=>b.onclick=()=>{showView('raid');$('#raidGame').value=b.dataset.gameToRaid;renderTools()});
 }
 async function creatorSearch(q){
  const box=$('#creatorSearchResults');box.innerHTML='<p class="empty">Searching Twitch…</p>';
@@ -97,6 +134,9 @@ $('#raidReset').onclick=()=>{['raidSearch','raidMin','raidMax','raidTags'].forEa
 $('#matchReset').onclick=()=>{['matchSearch','matchMin','matchMax','matchTags'].forEach(id=>$('#'+id).value='');$('#matchGame').value='';$('#matchGenre').value='';$('#matchLanguage').value='';$('#matchOverlap').value='0';renderTools()};
 $('#findWindowBtn')?.addEventListener('click',renderCommonWindows);$('#windowMin')?.addEventListener('change',renderCommonWindows);$('#clearListsBtn')?.addEventListener('click',()=>{clearLists();renderSavedCreators()});
 renderWorkspaceControls();
+$$('[data-source]').forEach(b=>b.onclick=()=>{$$('[data-source]').forEach(x=>x.classList.remove('active'));b.classList.add('active');discoverySource=b.dataset.source;renderTools();renderCompactNetwork()});
+['scheduleFollowerSearch','scheduleMinOverlap','scheduleDay','scheduleMatchGenre','scheduleLiveOnly','scheduleSort'].forEach(id=>$('#'+id)?.addEventListener(id==='scheduleFollowerSearch'?'input':'change',renderFollowerScheduleMatches));
+['networkSearch','networkRelation','networkGenre','networkLive'].forEach(id=>$('#'+id)?.addEventListener(id==='networkSearch'?'input':'change',renderCompactNetwork));
 $$('[data-goal]').forEach(b=>b.onclick=()=>{$$('[data-goal]').forEach(x=>x.classList.remove('active'));b.classList.add('active');workspace.goal=b.dataset.goal;saveWorkspace({goal:workspace.goal})});
 $('#resultSort')?.addEventListener('change',e=>{workspace.sort=e.target.value;saveWorkspace({sort:workspace.sort});renderTools()});
 $('#pageSize')?.addEventListener('change',e=>{workspace.pageSize=Number(e.target.value);saveWorkspace({pageSize:workspace.pageSize});renderTools()});

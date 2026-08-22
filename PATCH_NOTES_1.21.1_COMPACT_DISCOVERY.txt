@@ -1,0 +1,33 @@
+NERDSPACE LABS 1.21.1 — COMPACT DISCOVERY
+
+COMPACT UI
+- Reduced vertical padding and card density across major workspace surfaces.
+- Long creator/result collections use bounded desktop result regions instead of forcing the entire page to grow.
+- Detailed Schedule Lab controls move into a collapsible advanced section.
+
+SCHEDULE MATCH / SOLSTICE
+- Schedule Lab is now follower-first.
+- Search followed creators and filter by minimum weekly overlap, day, genre and live state.
+- Sort by best overlap, creator name or current viewers.
+- Existing detailed weekly matrix and Find My Windows remain available under an expandable section.
+
+NETWORK EXPLORER
+- Added creator/game/tag search.
+- Added relationship filters: all, following, saved, potential collabs, raid later.
+- Added genre and live/offline filters.
+- Compact responsive result grid replaces an unnecessarily long scrolling list.
+
+GENRES
+- Expanded creator genre taxonomy.
+- MMO is now a first-class genre.
+- Added RPG, Action, Adventure, Shooter, FPS, Battle Royale, MOBA, Strategy, Simulation, Survival, Horror, Sports, Racing, Fighting, Platformer, Puzzle, Rhythm, Card & Board, Sandbox, Crafting, Co-op, Party, Retro, Indie, Creative, Music, Art, Just Chatting and IRL.
+- Added IGDB aliases including Massively Multiplayer/MMORPG -> MMO.
+
+NERDSYNC DISCOVERY
+- Added discovery-source controls: Discovery Feed, Following, Outside My Network.
+- Discovery pool can merge followed live creators with existing NerdSync/category/search discovery results when available.
+- This removes the follower-only assumption from discovery-oriented surfaces while keeping Following as an explicit filter.
+
+PRE-D1
+- No D1 storage.
+- Existing local preferences/presets retained.

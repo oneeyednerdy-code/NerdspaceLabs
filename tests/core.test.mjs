@@ -80,3 +80,5 @@ test('image proxy helper keeps Twitch images same-origin', async()=>{
 });
 
 test('pagination bounds result pages',async()=>{const {paginate}=await import('../js/engines/pagination.js');const p=paginate(Array.from({length:25},(_,i)=>i),2,12);assert.equal(p.items.length,12);assert.equal(p.pages,3)});
+
+test('genre taxonomy includes MMO and normalizes IGDB massively multiplayer',async()=>{const {CREATOR_GENRES,normalizeGenre}=await import('../js/engines/genre-taxonomy.js');assert.ok(CREATOR_GENRES.includes('MMO'));assert.equal(normalizeGenre('Massively Multiplayer'),'MMO')});
