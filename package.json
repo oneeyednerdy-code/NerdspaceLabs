@@ -1,6 +1,6 @@
 {
   "name": "nerdspace-labs-dashboard",
-  "version": "1.10.2",
+  "version": "1.10.2b",
   "private": true,
   "type": "module",
   "scripts": {

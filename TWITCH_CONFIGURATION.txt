@@ -1,0 +1,14 @@
+NERDSPACE TWITCH CONFIGURATION
+
+TWITCH CLIENT ID
+1ttjf7d3zcz71caav9zg9mf2x6uj18
+
+This Client ID has been preconfigured in this package.
+
+YOU STILL NEED TO VERIFY
+1. Open your Twitch Developer application.
+2. Confirm the exact Nerdspace production OAuth redirect URL is registered.
+3. If using a Cloudflare preview/staging hostname, register its exact redirect URL as well.
+4. Do not add the Twitch Client Secret to this project.
+
+If Twitch reports an invalid/bad Client ID after deploying this package, check that Cloudflare is serving the newly built 1.10.2a assets rather than an older cached deployment.

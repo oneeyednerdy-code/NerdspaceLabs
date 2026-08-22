@@ -20,7 +20,7 @@ Copy the Twitch Client ID.
 2. UPDATE TWO FILES
 
 Replace:
-  REPLACE_WITH_YOUR_TWITCH_CLIENT_ID
+  1ttjf7d3zcz71caav9zg9mf2x6uj18
 
 in:
   config.js

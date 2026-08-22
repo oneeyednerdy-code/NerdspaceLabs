@@ -1,0 +1,10 @@
+NERDSPACE LABS DASHBOARD 1.10.2b
+CLOUDFLARE WRANGLER NAME HOTFIX
+
+CHANGED
+- wrangler.jsonc project/Worker name is now:
+  "name": "nerdspacelabsdashboard"
+
+This aligns the Cloudflare deployment name with the Nerdspace Labs Dashboard project.
+All 1.10.2a Twitch Client ID configuration changes remain included.
+D1 remains disabled.

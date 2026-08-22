@@ -1,7 +1,7 @@
 NERDSPACE LABS DASHBOARD 1.0.0
 Stable Pre-D1
 
-1. Replace REPLACE_WITH_YOUR_TWITCH_CLIENT_ID in config.js and wrangler.jsonc.
+1. Replace 1ttjf7d3zcz71caav9zg9mf2x6uj18 in config.js and wrangler.jsonc.
 2. Register the exact production and preview OAuth callback URLs with Twitch.
 3. Never add a Twitch Client Secret to client-side files.
 4. Run:

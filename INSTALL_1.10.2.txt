@@ -2,7 +2,7 @@ NERDSPACE LABS DASHBOARD 1.10.2 — INSTALL / UPDATE
 
 1. Back up the current Cloudflare deployment or Git tag.
 2. Extract this ZIP over a clean project directory (recommended) or replace the 1.10.1 source.
-3. Configure REPLACE_WITH_YOUR_TWITCH_CLIENT_ID in config.js and wrangler.jsonc.
+3. Configure 1ttjf7d3zcz71caav9zg9mf2x6uj18 in config.js and wrangler.jsonc.
 4. Keep the existing Twitch OAuth callback URL registered exactly.
 5. Never add a Twitch Client Secret to client-side code.
 6. Run:

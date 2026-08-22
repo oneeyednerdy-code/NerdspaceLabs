@@ -9,7 +9,7 @@ D1/KV/R2 are NOT required.
 
 TWITCH
 1. Register the exact preview and production OAuth callback URLs in the Twitch Developer Console.
-2. Replace REPLACE_WITH_YOUR_TWITCH_CLIENT_ID in config.js and wrangler.jsonc.
+2. Replace 1ttjf7d3zcz71caav9zg9mf2x6uj18 in config.js and wrangler.jsonc.
 3. NEVER put a Twitch Client Secret in browser code, GitHub, config.js or HTML.
 
 INSTALL

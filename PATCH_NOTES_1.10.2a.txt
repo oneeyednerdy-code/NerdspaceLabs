@@ -1,0 +1,16 @@
+NERDSPACE LABS DASHBOARD 1.10.2a
+TWITCH CLIENT ID CONFIGURATION HOTFIX
+A project by OneEyedNerdy
+
+CHANGED
+- Added the project's Twitch Client ID directly to the deployment configuration:
+  1ttjf7d3zcz71caav9zg9mf2x6uj18
+- Removed the REPLACE_WITH_YOUR_TWITCH_CLIENT_ID placeholder where present.
+- Updated release version to 1.10.2a.
+
+SECURITY
+A Twitch Client ID is public application identification and is expected to be present in browser OAuth requests.
+A Twitch Client Secret must NEVER be added to client-side files or committed to this project.
+
+IMPORTANT
+The Twitch Developer Console must still contain the exact OAuth redirect URL used by the deployed Nerdspace hostname.
