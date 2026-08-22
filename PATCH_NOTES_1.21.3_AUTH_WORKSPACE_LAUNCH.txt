@@ -1,0 +1,9 @@
+NERDSPACE LABS 1.21.3 — AUTHENTICATION & WORKSPACE LAUNCH
+
+- Logged-out launch now shows only Nerdspace branding, purpose, privacy note and Log in with Twitch.
+- Full navigation/dashboard remains hidden before authentication.
+- Added Building Your Creator Workspace progress screen.
+- Core Twitch identity/following/schedule are distinguished from supplemental history/discovery/IGDB.
+- Supplemental providers do not intentionally gate the authenticated workspace.
+- Existing 1.21.2 Wormhole unified filters and all pre-D1 tools retained.
+- No D1/KV/R2.

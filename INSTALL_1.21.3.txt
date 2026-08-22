@@ -1,0 +1,17 @@
+NERDSPACE LABS 1.21.3
+npm install
+npm test
+npm run build
+npm run preview
+
+Verify in a private/logged-out browser:
+1. Only login screen appears.
+2. Click Log in with Twitch.
+3. Loading screen appears while authentication/data begins.
+4. Authenticated app appears after Twitch identity is available.
+5. No empty dashboard/sidebar flashes before login.
+6. Supplemental provider failures do not hide the authenticated workspace.
+7. Verify all 1.21.2 filters/tools and mobile layouts.
+
+Deploy: npm run deploy
+No D1 required.

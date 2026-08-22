@@ -16,6 +16,7 @@ import { proxiedImage } from './services/images.js';
 import { getWorkspace,saveWorkspace,savePreset } from './engines/workspace-settings.js';
 import { paginate } from './engines/pagination.js';
 import { normalizeGenre } from './engines/genre-taxonomy.js';
+import { createLaunchFlow } from './services/launch-flow.js';
 
 const state={user:null,channel:null,stream:null,videos:[],followedStreams:[],followedChannels:[],clips:[],followerTotal:null,publishedSchedule:[],inferredSchedule:[],gameHistory:[],gameSignals:[],tracker:null,igdbGames:[],raidMatches:[],creatorMatches:[],providerStatus:{},profiles:[],schedules:new Map(),errors:[]};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -129,7 +130,14 @@ function renderUnifiedFilterChips(){
 }
 function renderFilteredGames(){const q=($('#gameFilterSearch')?.value||'').toLowerCase(),g=($('#gameFilterGenre')?.value||'').toLowerCase();['#gameHistory','#gameRadar'].forEach(sel=>{$$(sel+' > *').forEach(card=>{const t=card.textContent.toLowerCase();card.hidden=Boolean((q&&!t.includes(q))||(g&&!t.includes(g)))})})}
 
+const launchFlow=createLaunchFlow({authGate:$('#authGate'),loading:$('#workspaceLoading'),app:$('#authenticatedApp'),error:$('#authGateError'),steps:name=>$(`[data-launch-step="${name}"]`)});
+function launchStep(name,status,label){launchFlow.setStep(name,status,label)}
+function showLoggedOut(message=''){launchFlow.loggedOut(message)}
+function showWorkspaceLoading(){launchFlow.loading();launchStep('identity','active','Loading')}
+function showAuthenticatedWorkspace(){launchFlow.ready()}
+
 function render(){
+  if(state.user){launchStep('identity','done','Ready');if(state.followedStreams||state.following)launchStep('following','done','Ready');if(state.publishedSchedule||state.schedule)launchStep('schedule','done','Ready');if(state.videos?.length)launchStep('history','done','Ready');if(state.discoveryFeed||state.discovery||state.searchResults)launchStep('discovery','done','Ready');if((state.followedStreams||[]).some(x=>(x.genres||[]).length))launchStep('igdb','done','Ready');showAuthenticatedWorkspace()}else{showLoggedOut()}
  $('#version').textContent=`ALPHA ${APP_CONFIG.version}`;$('#loginView').hidden=Boolean(state.user);$('#appShell').hidden=!state.user;if(!state.user)return;
  $('#avatar').src=proxiedImage(state.user.profile_image_url||'');$('#displayName').textContent=state.user.display_name;$('#loginName').textContent='@'+state.user.login;$('#livePill').textContent=state.stream?'LIVE':'OFFLINE';$('#livePill').className='status-pill '+(state.stream?'good':'');$('#channelGame').textContent=state.stream?.game_name||state.channel?.game_name||'No category';$('#viewerStat').textContent=state.stream?.viewer_count??'—';$('#vodStat').textContent=state.videos.length;$('#networkStat').textContent=state.followedStreams.length;$('#scheduleStat').textContent=state.publishedSchedule.length?'Published':(state.inferredSchedule.length?'Observed':'Limited');
  $('#signals').innerHTML=buildSignals({...state}).map(s=>`<article class="signal-card"><span>${esc(s.type)}</span><h3>${esc(s.title)}</h3><p>${esc(s.body)}</p></article>`).join('');
@@ -154,6 +162,7 @@ $('#connectBtn').addEventListener('click',()=>{try{beginLogin()}catch(e){$('#log
 $('#raidReset').onclick=()=>{['raidSearch','raidMin','raidMax','raidTags'].forEach(id=>$('#'+id).value='');$('#raidGame').value='';$('#raidGenre').value='';$('#raidLanguage').value='';renderTools()};
 $('#matchReset').onclick=()=>{['matchSearch','matchMin','matchMax','matchTags'].forEach(id=>$('#'+id).value='');$('#matchGame').value='';$('#matchGenre').value='';$('#matchLanguage').value='';$('#matchOverlap').value='0';renderTools()};
 $('#findWindowBtn')?.addEventListener('click',renderCommonWindows);$('#windowMin')?.addEventListener('change',renderCommonWindows);$('#clearListsBtn')?.addEventListener('click',()=>{clearLists();renderSavedCreators()});
+$('#launchLoginBtn')?.addEventListener('click',()=>{showWorkspaceLoading();const existing=$('#loginBtn')||$('[data-login]');if(existing)existing.click()});
 initUnifiedFilters();renderWorkspaceControls();
 $$('[data-source]').forEach(b=>b.onclick=()=>{$$('[data-source]').forEach(x=>x.classList.remove('active'));b.classList.add('active');discoverySource=b.dataset.source;renderTools();renderCompactNetwork()});
 ['scheduleFollowerSearch','scheduleMinOverlap','scheduleDay','scheduleMatchGenre','scheduleLiveOnly','scheduleSort'].forEach(id=>$('#'+id)?.addEventListener(id==='scheduleFollowerSearch'?'input':'change',renderFollowerScheduleMatches));
