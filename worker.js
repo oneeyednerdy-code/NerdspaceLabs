@@ -2,10 +2,40 @@ import { onRequestGet as twitchTrackerSummary } from './functions/api/twitchtrac
 import { onRequestGet as twitchTrackerGameSummary } from './functions/api/twitchtracker-game-summary.js';
 
 const HELIX_ORIGIN = 'https://api.twitch.tv';
+const IGDB_ORIGIN = 'https://api.igdb.com/v4';
+let igdbTokenCache = { token:'', expiresAt:0 };
+
+async function getIgdbToken(env){
+  const now=Date.now();
+  if(igdbTokenCache.token && igdbTokenCache.expiresAt > now + 300000) return igdbTokenCache.token;
+  if(!env.TWITCH_CLIENT_ID || !env.IGDB_CLIENT_SECRET) throw new Error('IGDB credentials are not configured.');
+  const u=new URL('https://id.twitch.tv/oauth2/token');
+  u.searchParams.set('client_id',env.TWITCH_CLIENT_ID);
+  u.searchParams.set('client_secret',env.IGDB_CLIENT_SECRET);
+  u.searchParams.set('grant_type','client_credentials');
+  const r=await fetch(u,{method:'POST'});
+  if(!r.ok) throw new Error('IGDB application authentication failed.');
+  const b=await r.json();
+  igdbTokenCache={token:b.access_token,expiresAt:now+Math.max(300,Number(b.expires_in||3600))*1000};
+  return igdbTokenCache.token;
+}
+async function igdbGames(request,env){
+  if(request.method!=='POST') return error('Method not allowed.',405);
+  let body; try{body=await request.json()}catch{return error('Invalid JSON.',400)}
+  const ids=[...new Set((body.ids||[]).map(String).filter(x=>/^\d+$/.test(x)))].slice(0,100);
+  if(!ids.length) return new Response('[]',{headers:{'content-type':'application/json','cache-control':'public, max-age=86400'}});
+  try{
+    const token=await getIgdbToken(env);
+    const query=`fields id,name,genres.name,genres.slug,themes.name,game_modes.name,player_perspectives.name,summary,cover.image_id; where id = (${ids.join(',')}); limit 100;`;
+    const r=await fetch(IGDB_ORIGIN+'/games',{method:'POST',headers:{'Client-ID':env.TWITCH_CLIENT_ID,'Authorization':`Bearer ${token}`,'Accept':'application/json','Content-Type':'text/plain'},body:query});
+    const text=await r.text();
+    return new Response(text,{status:r.status,headers:{'content-type':'application/json; charset=utf-8','cache-control':r.ok?'public, max-age=86400':'no-store'}});
+  }catch(e){return error(e.message||'IGDB is temporarily unavailable.',502)}
+}
 const PREFIX = '/api/twitch/helix';
 const ALLOWED = new Set([
   '/users','/streams','/streams/followed','/channels','/channels/followed',
-  '/games','/videos','/clips','/schedule','/teams/channel','/search/categories','/channels/followers'
+  '/games','/videos','/clips','/schedule','/teams/channel','/search/categories','/search/channels','/channels/followers'
 ]);
 
 function error(message, status = 400) {
@@ -54,6 +84,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname.startsWith(PREFIX + '/')) return proxy(request, env);
+    if (url.pathname === '/api/igdb/games') return igdbGames(request, env);
     if (url.pathname === '/api/twitchtracker-game-summary') {
       if (request.method !== 'GET') return error('Method not allowed.', 405);
       return twitchTrackerGameSummary({request, env, waitUntil: ctx.waitUntil.bind(ctx)});

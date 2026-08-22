@@ -1,0 +1,48 @@
+NERDSPACE LABS DASHBOARD 1.11.0 — TOOLKIT UPDATE
+A project by OneEyedNerdy
+
+MAJOR CHANGE
+Nerdspace moves from a mostly presentational dashboard toward a functional creator toolset.
+
+TWITCH DATA
+- Network profile photos are now fetched from Twitch Get Users for the followed-channel set.
+- Live creator channel metadata is enriched from Get Channel Information.
+- Tags/content classification labels use current Twitch stream/channel responses.
+- Direct creator lookup uses Twitch Get Users.
+- Broader creator search uses Twitch Search Channels.
+- Followed channels/streams remain paginated.
+- Provider status remains independent so one failed dataset does not collapse the app.
+
+WORMHOLE DNA — RAID RADAR
+- Creator/title search.
+- Min/max viewer filters.
+- Game filter.
+- Language filter.
+- Comma-separated tag filtering.
+- Live creator cards now include Twitch profile photos, tags, title, viewers and match evidence.
+- Cross-tool actions can send a game into Raid Radar or tags into Creator Match.
+
+NERDSYNC DNA — CREATOR MATCH
+- Separate collaboration filter panel.
+- Search, viewer range, game, language, tags and minimum schedule-overlap filters.
+- Collaboration score remains separate from Raid Radar score.
+
+SOLSTICE DNA — SCHEDULE
+- Published schedule remains preferred evidence.
+- Observed VOD timing remains fallback evidence.
+- Schedule overlap remains part of Creator Match.
+
+NEW — CREATOR SEARCH
+- Search an exact Twitch login.
+- Fall back to Twitch channel search.
+- Show profile photo, description/title, tags and current category when available.
+- Send a discovered creator's game directly into Raid Radar.
+
+NEW — SHARED FILTER ENGINE
+- One reusable filtering layer for search, games, tags, language and viewer range.
+- Designed to be reused by Raid Radar, Creator Match and future Network/Game tools.
+
+NOT CLAIMED
+- Twitch Helix does not expose game genres through these endpoints, so Nerdspace does not invent a genre filter.
+- Twitch Get Videos still does not expose historical game/category IDs.
+- D1 remains disabled.

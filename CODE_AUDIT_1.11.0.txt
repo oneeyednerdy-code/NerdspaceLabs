@@ -1,0 +1,9 @@
+NERDSPACE 1.11.0 AUDIT TARGETS
+- JavaScript syntax checked with node --check.
+- Core tests run with npm test.
+- JSON parsed.
+- wrangler name verified as nerdspacelabsdashboard.
+- Twitch Client ID verified in config/wrangler.
+- Search Channels added to worker allowlist.
+- No Twitch Client Secret present.
+- D1 remains disabled.

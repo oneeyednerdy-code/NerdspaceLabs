@@ -1,0 +1,17 @@
+NERDSPACE 1.11.1 INSTALL
+
+1. Read IGDB_SETUP.txt.
+2. Ensure the Twitch Developer app is Confidential and has a Client Secret.
+3. Configure the secret in Cloudflare:
+     npx wrangler secret put IGDB_CLIENT_SECRET
+4. Run:
+     npm install
+     npm test
+     npm run build
+     npm run preview
+5. Verify `igdb.games` reports OK in Data Status and Genre filters populate.
+6. Deploy:
+     npm run deploy
+
+Do NOT place the Client Secret in any project file.
+D1 remains disabled.

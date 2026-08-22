@@ -1,0 +1,44 @@
+NERDSPACE LABS DASHBOARD 1.11.1 — IGDB SETUP
+
+WHY IGDB
+Twitch Get Games now exposes an igdb_id when Twitch has a mapping. Nerdspace uses that ID to enrich
+Twitch categories with real IGDB genres, themes and game modes.
+
+SECURITY / AUTHENTICATION
+IGDB does NOT accept a creator's Twitch user token. IGDB requires application credentials.
+The Client Secret MUST stay server-side. Do not put it in config.js, index.html, GitHub, or wrangler.jsonc.
+
+CLOUDFLARE SETUP
+This package already uses your existing Twitch/IGDB Client ID:
+  1ttjf7d3zcz71caav9zg9mf2x6uj18
+
+Your Twitch Developer application must be Confidential and have a Client Secret.
+
+From the project folder run:
+  npx wrangler secret put IGDB_CLIENT_SECRET
+
+Paste the Twitch application Client Secret when Wrangler prompts you.
+
+Then:
+  npm install
+  npm test
+  npm run build
+  npm run preview
+
+The Worker exchanges the secret for an app access token server-side and caches that token in the Worker
+isolate. The browser never receives the Client Secret or IGDB access token.
+
+FUNCTIONAL TEST
+1. Log in to Nerdspace.
+2. Open Data Status.
+3. Confirm `igdb.games` is OK.
+4. Open Raid Radar.
+5. The Genre dropdown should contain genres for mapped Twitch games.
+6. Choose a genre such as Role-playing (RPG), Shooter, Adventure, Strategy, etc.
+7. Confirm the creator list filters to live creators whose current Twitch game maps to that IGDB genre.
+
+FAILURE BEHAVIOR
+If IGDB credentials are absent or IGDB is unavailable, Twitch/Raid Radar/Creator Match still work.
+The Genre dropdown simply has no enriched genre values and Data Status reports the IGDB provider failure.
+
+D1/KV/R2 are still not required.

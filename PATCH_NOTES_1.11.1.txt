@@ -1,0 +1,14 @@
+NERDSPACE LABS DASHBOARD 1.11.1 — IGDB GENRE UPDATE
+
+- Added server-side IGDB integration through the Cloudflare Worker.
+- Uses Twitch Get Games `igdb_id` mappings instead of fuzzy title matching.
+- Enriches current Twitch games with IGDB genres, themes and game modes.
+- Added real Genre filters to Raid Radar and Creator Match.
+- Genre pills are shown on creator cards.
+- IGDB appears as an independent provider in Data Status.
+- IGDB failure never disables Twitch tools.
+- Client Secret and IGDB application token remain server-side.
+- D1 remains disabled.
+
+IGDB requires application credentials and does not accept Twitch user credentials.
+See IGDB_SETUP.txt before deployment.

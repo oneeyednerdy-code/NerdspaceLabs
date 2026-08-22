@@ -1,0 +1,35 @@
+NERDSPACE LABS DASHBOARD 1.11.0 — DEPLOYMENT
+
+1. Back up the current deployment.
+2. Extract into a clean project directory.
+3. Twitch Client ID is already configured:
+   1ttjf7d3zcz71caav9zg9mf2x6uj18
+4. wrangler.jsonc deployment name is:
+   nerdspacelabsdashboard
+5. Confirm the exact production/preview OAuth callback URLs in the Twitch Developer Console.
+6. Never add a Twitch Client Secret to browser code.
+
+VERIFY
+  npm install
+  npm test
+  npm run build
+  npm run preview
+
+PREVIEW TESTS
+- Login/logout.
+- Your Twitch profile image.
+- Raid Radar creator profile images.
+- Followed-live pagination.
+- Raid filters: search/viewers/game/language/tags.
+- Creator Match filters and schedule overlap.
+- Creator Search by exact Twitch login.
+- Creator Search by partial query.
+- Cross-tool Find Same Game / Use Tags actions.
+- Provider Status counts/failures.
+- Mobile at 360/390/412px.
+- TwitchTracker outage does not break Twitch tools.
+
+DEPLOY
+  npm run deploy
+
+D1/KV/R2 are not required.

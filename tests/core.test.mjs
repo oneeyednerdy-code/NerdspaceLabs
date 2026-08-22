@@ -49,3 +49,14 @@ test('NerdSync integration returns explainable component scores',()=>{
  const sched={segments:[{startTime:'2026-08-24T17:00:00Z',endTime:'2026-08-24T20:00:00Z'}]};
  const r=creatorMatch(me,other,sched,sched); assert.ok(r.score>=80); assert.equal(r.games,100); assert.ok(r.schedule>=60);
 });
+
+import { filterCreators } from '../js/engines/filter-engine.js';
+test('filter engine combines game tags language and viewers',()=>{
+ const rows=[{user_name:'A',game_name:'SWTOR',viewer_count:20,language:'en',tags:['LGBTQIA+','MMO']},{user_name:'B',game_name:'Other',viewer_count:90,language:'en',tags:['FPS']}];
+ assert.equal(filterCreators(rows,{games:['SWTOR'],tags:['LGBTQIA+'],language:'en',minViewers:10,maxViewers:50}).length,1);
+});
+
+test('filter engine supports IGDB genres',()=>{
+ const rows=[{user_name:'A',game_name:'Game A',viewer_count:20,language:'en',tags:[],genres:['Role-playing (RPG)','Adventure']},{user_name:'B',game_name:'Game B',viewer_count:20,language:'en',tags:[],genres:['Shooter']}];
+ assert.equal(filterCreators(rows,{genres:['Role-playing (RPG)']}).length,1);
+});

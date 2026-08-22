@@ -28,11 +28,14 @@ export async function paginate(path, params={}, {maxPages=10,maxItems=1000,dataP
   } while(after && pages<maxPages && items.length<maxItems);
   return {items:items.slice(0,maxItems),pages,lastBody,truncated:Boolean(after)};
 }
-
 export async function getUser(id) { const b=await helix('/users',id?{id}:{}); return b.data?.[0]||null; }
+export async function getUserByLogin(login) { const b=await helix('/users',{login:String(login||'').trim().toLowerCase()}); return b.data?.[0]||null; }
 export async function getUsers(ids=[]) { const u=[...new Set(ids.filter(Boolean))]; if(!u.length)return[]; const out=[]; for(let i=0;i<u.length;i+=100){const b=await helix('/users',{id:u.slice(i,i+100)});out.push(...(b.data||[]));} return out; }
 export async function getChannel(id) { const b=await helix('/channels',{broadcaster_id:id});return b.data?.[0]||null; }
+export async function getChannels(ids=[]) { const u=[...new Set(ids.filter(Boolean))]; const out=[]; for(let i=0;i<u.length;i+=100){const b=await helix('/channels',{broadcaster_id:u.slice(i,i+100)});out.push(...(b.data||[]));} return out; }
 export async function getStream(id) { const b=await helix('/streams',{user_id:id});return b.data?.[0]||null; }
+export async function getStreams(ids=[]) { const u=[...new Set(ids.filter(Boolean))];const out=[];for(let i=0;i<u.length;i+=100){const b=await helix('/streams',{user_id:u.slice(i,i+100)});out.push(...(b.data||[]));}return out; }
+export async function searchChannels(query,max=40) { if(!String(query||'').trim())return[];return (await paginate('/search/channels',{query:String(query).trim(),first:'20'},{maxPages:Math.ceil(max/20),maxItems:max})).items; }
 export async function getRecentVideos(id,max=100) { return (await paginate('/videos',{user_id:id,type:'archive',first:'100'},{maxPages:Math.ceil(max/100),maxItems:max})).items; }
 export async function getGames(ids) { const u=[...new Set(ids.filter(Boolean))];const out=[];for(let i=0;i<u.length;i+=100){const b=await helix('/games',{id:u.slice(i,i+100)});out.push(...(b.data||[]));}return out; }
 export async function getFollowedStreams(userId,max=500) { return (await paginate('/streams/followed',{user_id:userId,first:'100'},{maxPages:Math.ceil(max/100),maxItems:max})).items; }

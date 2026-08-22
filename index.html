@@ -17,7 +17,7 @@
     <a class="brand" href="/" aria-label="Nerdspace Labs Dashboard">
       <span><b>NERDSPACE LABS</b><small>DASHBOARD</small></span>
     </a>
-    <div class="top-actions"><span id="version" class="mono">ALPHA 1.10.2b</span><span id="systemStatus" class="system-status">READY</span></div>
+    <div class="top-actions"><span id="version" class="mono">ALPHA 1.11.1</span><span id="systemStatus" class="system-status">READY</span></div>
   </header>
 
   <main id="loginView" class="landing">
@@ -41,6 +41,7 @@
       <nav>
         <button data-view="mission" class="active">Mission Control</button>
         <button data-view="raid">Raid Radar</button>
+        <button data-view="creatorSearch">Creator Search</button>
         <button data-view="games">Game Radar</button>
         <button data-view="match">Creator Match</button>
         <button data-view="schedule">Schedule Lab</button>
@@ -70,23 +71,47 @@
       </section>
 
       <section id="raid" class="view" hidden>
-        <div class="page-head"><div><p class="eyebrow">WORMHOLE DNA</p><h1>Raid Radar</h1><p>Live creators you already follow, ordered as a starting point for discovery.</p></div></div>
-        <div class="notice">Wormhole integration ranks live raid candidates using audience proximity, current category, stream timing and shared tags. Every score exposes its evidence.</div>
-        <div id="raidList" class="list"></div>
-      </section>
+<div class="page-head"><div><p class="eyebrow">WORMHOLE DNA</p><h1>Raid Radar</h1><p>Search, filter and rank live creators using Twitch evidence.</p></div></div>
+<div class="tool-filter" id="raidFilters">
+  <label>SEARCH<input id="raidSearch" placeholder="Creator or stream title"></label>
+  <label>MIN VIEWERS<input id="raidMin" type="number" min="0" placeholder="0"></label>
+  <label>MAX VIEWERS<input id="raidMax" type="number" min="0" placeholder="Any"></label>
+  <label>GAME<select id="raidGame"><option value="">Any game</option></select></label>
+  <label>GENRE<select id="raidGenre"><option value="">Any genre</option></select></label><label>LANGUAGE<select id="raidLanguage"><option value="">Any language</option></select></label>
+  <label class="wide">TAGS<input id="raidTags" placeholder="LGBTQIA+, MMO, English"></label>
+  <div class="filter-actions"><button id="raidReset" class="secondary">Reset</button><span id="raidCount" class="mono"></span></div>
+</div>
+<div id="raidList" class="creator-grid"></div>
+</section>
 
-      <section id="games" class="view" hidden>
+<section id="creatorSearch" class="view" hidden>
+<div class="page-head"><div><p class="eyebrow">UNIVERSAL SEARCH</p><h1>Creator Search</h1><p>Look up any Twitch creator and turn the result into an actionable profile.</p></div></div>
+<form id="creatorSearchForm" class="search-bar"><input id="creatorSearchInput" autocomplete="off" placeholder="Twitch username or channel search"><button class="primary">Search Twitch</button></form>
+<div id="creatorSearchResults" class="creator-grid"></div>
+</section>
+
+<section id="games" class="view" hidden>
         <div class="page-head"><div><p class="eyebrow">GAME INTELLIGENCE</p><h1>Game Radar</h1><p>Recent game history plus adjacent categories appearing in your live creator network.</p></div></div>
         <div class="two-col"><div><div class="section-head"><h2>My recent games</h2></div><div id="gameHistory" class="list"></div></div><div><div class="section-head"><h2>Experimental signals</h2></div><div id="gameRadar" class="cards"></div></div></div>
       </section>
 
 
       <section id="match" class="view" hidden>
-        <div class="page-head"><div><p class="eyebrow">NERDSYNC + SOLSTICE DNA</p><h1>Creator Match</h1><p>Collaboration fit combines creator compatibility with published schedule overlap. Schedule evidence is weighted separately from raid fit.</p></div></div>
-        <div id="creatorMatchList" class="list"></div>
-      </section>
+<div class="page-head"><div><p class="eyebrow">NERDSYNC + SOLSTICE DNA</p><h1>Creator Match</h1><p>Filter collaboration candidates separately from Raid Radar.</p></div></div>
+<div class="tool-filter">
+  <label>SEARCH<input id="matchSearch" placeholder="Creator"></label>
+  <label>MIN VIEWERS<input id="matchMin" type="number" min="0" placeholder="0"></label>
+  <label>MAX VIEWERS<input id="matchMax" type="number" min="0" placeholder="Any"></label>
+  <label>GAME<select id="matchGame"><option value="">Any game</option></select></label>
+  <label>GENRE<select id="matchGenre"><option value="">Any genre</option></select></label><label>LANGUAGE<select id="matchLanguage"><option value="">Any language</option></select></label>
+  <label>MIN OVERLAP<input id="matchOverlap" type="number" min="0" value="0" step="30"></label>
+  <label class="wide">TAGS<input id="matchTags" placeholder="comma separated tags"></label>
+  <div class="filter-actions"><button id="matchReset" class="secondary">Reset</button><span id="matchCount" class="mono"></span></div>
+</div>
+<div id="creatorMatchList" class="creator-grid"></div>
+</section>
 
-      <section id="schedule" class="view" hidden>
+<section id="schedule" class="view" hidden>
         <div class="page-head"><div><p class="eyebrow">SOLSTICE DNA</p><h1>Schedule Lab</h1><p>Published Twitch schedules take priority. Recent VOD timing becomes observed evidence when needed.</p></div></div>
         <div id="scheduleList" class="list"></div>
       </section>
