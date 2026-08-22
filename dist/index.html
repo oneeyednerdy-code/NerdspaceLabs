@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <title>Nerdspace Labs Dashboard</title>
+  <link rel="stylesheet" href="/assets/styles-e4bea734.css">
+</head>
+<body>
+  <div class="ambient"></div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Nerdspace Labs Dashboard">
+      <span><b>NERDSPACE LABS</b><small>DASHBOARD</small></span>
+    </a>
+    <div class="top-actions"><span id="version" class="mono">ALPHA 0.1.0</span><span id="systemStatus" class="system-status">READY</span></div>
+  </header>
+
+  <main id="loginView" class="landing">
+    <section class="hero">
+      <p class="eyebrow">TWITCH CREATOR INTELLIGENCE</p>
+      <h1>Your channel.<br><em>One command center.</em></h1>
+      <p class="lede">Nerdspace brings discovery, creator matching, scheduling, game signals and channel context into one local-first dashboard.</p>
+      <div class="hero-actions"><button id="connectBtn" class="primary">Connect with Twitch</button><a class="secondary" href="#privacy">How your data works</a></div>
+      <p id="loginError" class="error"></p>
+    </section>
+    <section class="principles">
+      <article><span>01</span><h2>Find the signal</h2><p>Useful patterns and opportunities without promises of growth or a magic algorithm.</p></article>
+      <article><span>02</span><h2>Understand why</h2><p>Recommendations show their evidence instead of hiding behind a score.</p></article>
+      <article><span>03</span><h2>Local first</h2><p>No Nerdspace account and no D1 database in this Alpha. Preferences stay in your browser.</p></article>
+    </section>
+    <section id="privacy" class="privacy-strip"><b>PRE-D1 STORAGE MODEL</b><span>Twitch token: session only</span><span>Preferences: browser local storage</span><span>Server-side creator database: none</span></section>
+  </main>
+
+  <div id="appShell" class="shell" hidden>
+    <aside class="sidebar">
+      <nav>
+        <button data-view="mission" class="active">Mission Control</button>
+        <button data-view="raid">Raid Radar</button>
+        <button data-view="games">Game Radar</button>
+        <button data-view="schedule">Schedule Lab</button>
+        <button data-view="insights">Insights</button>
+        <button data-view="settings">System</button>
+      </nav>
+      <div class="project-note"><b>Nerdspace Labs Dashboard</b><span>A project by OneEyedNerdy</span></div>
+    </aside>
+    <main class="workspace">
+      <section class="profilebar">
+        <div class="identity"><img id="avatar" alt=""><div><strong id="displayName"></strong><small id="loginName"></small></div></div>
+        <span id="livePill" class="status-pill">OFFLINE</span>
+        <button id="logoutBtn" class="text-btn">Log out</button>
+      </section>
+
+      <section id="mission" class="view">
+        <div class="page-head"><div><p class="eyebrow">MISSION CONTROL</p><h1>Channel overview</h1></div><div class="current-category"><small>CURRENT CATEGORY</small><strong id="channelGame">—</strong></div></div>
+        <div class="stat-grid">
+          <article><span>VIEWERS NOW</span><strong id="viewerStat">—</strong></article>
+          <article><span>RECENT VODS</span><strong id="vodStat">—</strong></article>
+          <article><span>NETWORK LIVE</span><strong id="networkStat">—</strong></article>
+          <article><span>SCHEDULE</span><strong id="scheduleStat">—</strong></article>
+        </div>
+        <div class="section-head"><div><p class="eyebrow">SIGNAL DETECTED</p><h2>Worth your attention</h2></div></div>
+        <div id="signals" class="signal-grid"></div>
+      </section>
+
+      <section id="raid" class="view" hidden>
+        <div class="page-head"><div><p class="eyebrow">WORMHOLE DNA</p><h1>Raid Radar</h1><p>Live creators you already follow, ordered as a starting point for discovery.</p></div></div>
+        <div class="notice">Alpha 0.1.0 establishes the shared data layer. Full Wormhole match weighting and filters are the next integration step.</div>
+        <div id="raidList" class="list"></div>
+      </section>
+
+      <section id="games" class="view" hidden>
+        <div class="page-head"><div><p class="eyebrow">GAME INTELLIGENCE</p><h1>Game Radar</h1><p>Recent game history plus adjacent categories appearing in your live creator network.</p></div></div>
+        <div class="two-col"><div><div class="section-head"><h2>My recent games</h2></div><div id="gameHistory" class="list"></div></div><div><div class="section-head"><h2>Experimental signals</h2></div><div id="gameRadar" class="cards"></div></div></div>
+      </section>
+
+      <section id="schedule" class="view" hidden>
+        <div class="page-head"><div><p class="eyebrow">SOLSTICE DNA</p><h1>Schedule Lab</h1><p>Published Twitch schedules take priority. Recent VOD timing becomes observed evidence when needed.</p></div></div>
+        <div id="scheduleList" class="list"></div>
+      </section>
+
+      <section id="insights" class="view" hidden>
+        <div class="page-head"><div><p class="eyebrow">TELEMETRY</p><h1>Insights</h1><p>Evidence before conclusions.</p></div></div>
+        <div class="panel"><h2>Historical context</h2><p id="trackerData">Checking supplemental history…</p><p class="muted">This first Alpha intentionally avoids server-side history. Deeper comparisons and experiments become more useful after enough local/current Twitch evidence exists or when opt-in D1 persistence arrives later.</p></div>
+      </section>
+
+      <section id="settings" class="view" hidden>
+        <div class="page-head"><div><p class="eyebrow">SYSTEM</p><h1>Privacy & diagnostics</h1></div></div>
+        <div class="two-col">
+          <div class="panel"><h2>Your data</h2><dl><div><dt>Twitch OAuth token</dt><dd>sessionStorage only</dd></div><div><dt>Preferences/cache</dt><dd>localStorage</dd></div><div><dt>D1</dt><dd>Not used</dd></div><div><dt>Server creator profiles</dt><dd>Not stored</dd></div></dl><button id="clearDataBtn" class="secondary">Clear local Nerdspace data</button></div>
+          <div class="panel"><h2>Diagnostics</h2><p>Download a sanitized technical report for troubleshooting. OAuth tokens and creator identity are excluded.</p><button id="diagnosticsBtn" class="primary">Download diagnostic report</button></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer><span>Nerdspace Labs Dashboard • A project by OneEyedNerdy</span><span>No promises of growth. Better information for your decisions.</span></footer>
+  <script type="module" src="/assets/app-536AIEZE.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+NERDSPACE LABS DASHBOARD 0.1.0
+Foundation
+
+1. Replace REPLACE_WITH_YOUR_TWITCH_CLIENT_ID in config.js and wrangler.jsonc.
+2. Register the exact production and preview OAuth callback URLs with Twitch.
+3. Never add a Twitch Client Secret to client-side files.
+4. Run:
+     npm install
+     npm test
+     npm run build
+     npm run preview
+5. Test OAuth, logout, Twitch API failures, TwitchTracker failure, mobile layout and diagnostics.
+6. Deploy:
+     npm run deploy
+
+CLOUDFLARE TRACK
+Local -> Preview/Staging -> Production
+
+ROLLBACK
+Keep the previous ZIP/repository tag and known-good Cloudflare deployment.
+
+D1
+No D1 setup is required. D1 remains disabled through this release.

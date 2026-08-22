@@ -1,0 +1,15 @@
+NERDSPACE LABS DASHBOARD — CODE AUDIT
+
+Checks performed:
+- JavaScript syntax via node --check
+- Node core test suite via node --test
+- JSON/JSONC parse validation
+- Relative JavaScript import target validation
+- Local HTML src/href target validation
+- CSP/PWA registration review
+
+Detected and corrected:
+- Releases 1.2.0+ previously registered the service worker with an inline script while the CSP allows only self-hosted scripts. Registration now occurs from the bundled js/app.js, so it complies with script-src 'self'.
+
+Environment limitation:
+- A clean npm install timed out in the audit environment, so esbuild/wrangler-dependent production builds could not be executed here. Run npm install, npm test, and npm run build before Cloudflare deployment.

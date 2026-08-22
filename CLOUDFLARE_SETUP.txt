@@ -1,0 +1,122 @@
+NERDSPACE LABS DASHBOARD — ALPHA 0.1.0
+CLOUDFLARE / PRE-D1 SETUP
+
+This build uses Cloudflare Workers + static assets. It does NOT use D1, KV, R2, or a server-side user database.
+
+1. TWITCH DEVELOPER APP
+
+Create or reuse a Twitch developer application.
+
+Add your production dashboard URL as an OAuth Redirect URL.
+Example:
+  https://dashboard.example.com/
+
+For local testing, also add the exact localhost URL Wrangler prints.
+Example:
+  http://localhost:8787/
+
+Copy the Twitch Client ID.
+
+2. UPDATE TWO FILES
+
+Replace:
+  REPLACE_WITH_YOUR_TWITCH_CLIENT_ID
+
+in:
+  config.js
+  wrangler.jsonc
+
+The Client ID is public application identification. Do NOT put a Twitch Client Secret in config.js or GitHub.
+
+3. INSTALL
+
+Open PowerShell / Terminal in the project root:
+
+  npm install
+
+4. TEST
+
+  npm test
+
+5. BUILD
+
+  npm run build
+
+A dist/ folder will be generated.
+
+6. LOCAL CLOUDFLARE PREVIEW
+
+  npm run preview
+
+Use the URL Wrangler prints.
+
+7. DEPLOY
+
+If using Cloudflare Workers Builds / Git integration:
+
+  Production branch: main
+  Root directory: /
+  Build command: npm run build
+  Deploy command: npm run deploy
+
+Or deploy manually after authenticating Wrangler:
+
+  npm run deploy
+
+8. STORAGE MODEL
+
+sessionStorage:
+  Twitch OAuth access token
+  OAuth state
+
+localStorage:
+  Nerdspace preferences
+  lightweight local cache/profile freshness metadata
+
+Cloudflare server:
+  No creator profile database
+  No D1 database
+  No persistent OAuth token storage
+
+TwitchTracker:
+  Public channel name only
+  OAuth token is never forwarded
+
+9. CURRENT TWITCH SCOPE
+
+  user:read:follows
+
+The first Alpha is read-only.
+
+10. GAME RADAR LIMITATION
+
+Pre-D1 Game Radar uses:
+  - recent Twitch VOD category history
+  - games currently being streamed by creators the user follows
+
+It labels new-game suggestions EXPERIMENTAL. It does not claim a game will improve growth.
+
+11. NEXT INTEGRATION STEPS
+
+- Bring Wormhole's full raid filters and transparent match weighting into Raid Radar.
+- Bring NerdSync's creator compatibility engine into Collaborate.
+- Bring Solstice's richer schedule overlap/evidence model into Schedule Lab.
+- Add stream comparison and experiment tracking using local/current evidence.
+- Add opt-in D1 only in a later persistence release.
+
+12. TROUBLESHOOTING
+
+If Twitch login does nothing:
+  - confirm config.js contains the Client ID
+  - confirm the exact callback URL is registered with Twitch
+  - serve through HTTPS or localhost; do not open index.html as file://
+
+If Twitch API calls return Client ID not configured:
+  - update wrangler.jsonc
+  - redeploy
+
+If a feature has partial data:
+  - download the sanitized diagnostic report from System
+  - check browser DevTools Network for /api/twitch/helix/* requests
+
+No D1 setup is required for Alpha 0.1.0.

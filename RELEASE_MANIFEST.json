@@ -1,0 +1,13 @@
+{
+  "product": "Nerdspace Labs Dashboard",
+  "project_by": "OneEyedNerdy",
+  "version": "0.1.0",
+  "release": "Foundation",
+  "d1_enabled": false,
+  "branding": "text-mark-only",
+  "deployment": [
+    "local",
+    "cloudflare-preview",
+    "cloudflare-production"
+  ]
+}

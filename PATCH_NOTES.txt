@@ -1,0 +1,21 @@
+NERDSPACE LABS DASHBOARD
+VERSION 0.1.0 — FOUNDATION
+A project by OneEyedNerdy
+
+PURPOSE
+Shared Cloudflare/Twitch foundation, Mission Control, local-first storage, diagnostics.
+
+BRANDING
+- Text mark only: NERDSPACE LABS / DASHBOARD.
+- No standalone logo glyph.
+- Space Grotesk headings/brand, Inter body copy, IBM Plex Mono status/data labels.
+- Black + violet Wormhole-family visual language.
+
+STORAGE
+- D1: DISABLED.
+- OAuth token: sessionStorage.
+- Preferences/lightweight local cache: localStorage.
+- No persistent server-side creator profile.
+
+RELEASE POSITION
+This is a standalone deployment snapshot in the pre-D1 roadmap.
